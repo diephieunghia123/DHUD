@@ -1,6 +1,5 @@
 ﻿///<reference path="scripts/babylon.max.js" />
 
-
 var laneheight=0.2;
 var lanewidth=0.7;
 var lanelength=6;
@@ -24,11 +23,14 @@ function init() {
     var sphere=createBall(scene);
     //create lane
     var lane=createLane(scene);
+    //create pin 1 2
+    var pin=createPin(scene);
+    var pin2=createPin2(scene);
     //create gravity
     var grav=createGravity(scene);   
     //create mass
     createMass(scene,sphere,ground);
-    createMass2(scene,lane);
+    createMass2(scene,lane,pin,pin2);
 
 }
 
@@ -92,7 +94,18 @@ function createGravity(scene){
     return gravity;
 }
 function createPin(scene){
-    
+    var pin=new BABYLON.Mesh.CreateBox("pin",1,scene,false);
+    pin.scaling=new BABYLON.Vector3(0.2,laneheight,lanelength);
+    pin.position.x=0.3+lanewidth/2;
+    pin.position.y=laneheight/2;
+    return pin;
+}
+function createPin2(scene){
+    var pin=new BABYLON.Mesh.CreateBox("pin",1,scene,false);
+    pin.scaling=new BABYLON.Vector3(0.2,laneheight,lanelength);
+    pin.position.x=-(0.3+lanewidth/2);
+    pin.position.y=laneheight/2;
+    return pin;
 }
 function createMass(scene,sphere,ground){
     sphere.physicsImpostor = new BABYLON.PhysicsImpostor(sphere, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 0.4, restitution: 0.1 }, scene);
@@ -102,8 +115,12 @@ function createMass(scene,sphere,ground){
     return [spheremass,groundmass];
 }
 
-function createMass2(scene,lane){
-    lane.physicsImpostor = new BABYLON.PhysicsImpostor(lane, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 1, restitution: 0.9 }, scene);    
+function createMass2(scene,lane,pin,pin2){
+    lane.physicsImpostor = new BABYLON.PhysicsImpostor(lane, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, scene);    
+    pin.physicsImpostor = new BABYLON.PhysicsImpostor(pin, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, scene);    
+    pin2.physicsImpostor = new BABYLON.PhysicsImpostor(pin2, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, scene);    
     var lanemass=lane.physicsImpostor;
-    return lanemass;
+    var pinmass=pin.physicsImpostor;
+    var pin2mass=pin2.physicsImpostor;
+    return [lanemass,pinmass,pin2mass];
 }
