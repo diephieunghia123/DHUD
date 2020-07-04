@@ -1,6 +1,9 @@
 ﻿///<reference path="scripts/babylon.max.js" />
 
 
+var laneheight=0.2;
+var lanewidth=0.7;
+var lanelength=6;
 
 function init() {
     //Init the engine
@@ -13,10 +16,20 @@ function init() {
     camera.attachControl(engine.getRenderingCanvas());
     //set the camera to be the main active camera;
     scene.activeCamera = camera;
-    //create ground
-    var ground = CreateGround(scene);
     //create light
-    var light=createLight(scene);
+    var light= createLight(scene);
+    //create ground
+    var ground= createGround(scene);     
+    //create sphere
+    var sphere=createBall(scene);
+    //create lane
+    var lane=createLane(scene);
+    //create gravity
+    var grav=createGravity(scene);   
+    //create mass
+    createMass(scene,sphere,ground);
+    createMass2(scene,lane);
+
 }
 
 function initEngine() {
@@ -29,7 +42,6 @@ function initEngine() {
     window.addEventListener("resize", function () {
         engine.resize();
     });
-
     return engine;
 }
 
@@ -44,20 +56,54 @@ function createScene(engine) {
 }
 
 function createFreeCamera(scene) {
-    var camera = new BABYLON.FreeCamera("cam", new BABYLON.Vector3(0, 1.6, 0), scene);
+    var camera = new BABYLON.FreeCamera("cam", new BABYLON.Vector3(0.1, 0.9, -5), scene);
 
     camera.speed = 0.8;
     camera.inertia = 0.4;
 
     return camera;
 }
-function createLane(scene){
-    var ground=BABYLON.Mesh.CreateGround("ground",50,100,1,scene);
+function createGround(scene){
+    var ground=BABYLON.Mesh.CreateGround("ground",3,lanelength,1,scene);
+
     return ground;
 }
 
 function createLight(scene){
-    var light=new BABYLON.DirectionalLight("light",new BABYLON.Vec3b(0,-1,0),scene);
+    var light=new BABYLON.DirectionalLight("directlight",new BABYLON.Vector3(0,-1,0),scene);
+    light.intensity=0.7;
     return light;
 }
+function createBall(scene){
+    var sphere=new BABYLON.Mesh.CreateSphere("ball",12,0.22,scene);
+    //sphere location
+    sphere.position.y=2;   
+    return sphere;
+}
 
+function createLane(scene){
+    var lane=new BABYLON.Mesh.CreateBox("lane",1,scene,false);
+    lane.scaling=new BABYLON.Vector3(lanewidth,laneheight,lanelength);
+    lane.position.y=laneheight/2;
+    return lane;
+}
+function createGravity(scene){
+    var gravity=scene.enablePhysics();
+    return gravity;
+}
+function createPin(scene){
+    
+}
+function createMass(scene,sphere,ground){
+    sphere.physicsImpostor = new BABYLON.PhysicsImpostor(sphere, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 0.4, restitution: 0.1 }, scene);
+    ground.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, scene);    
+    var spheremass = sphere.physicsImpostor;
+    var groundmass = ground.physicsImpostor;  
+    return [spheremass,groundmass];
+}
+
+function createMass2(scene,lane){
+    lane.physicsImpostor = new BABYLON.PhysicsImpostor(lane, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 1, restitution: 0.9 }, scene);    
+    var lanemass=lane.physicsImpostor;
+    return lanemass;
+}
