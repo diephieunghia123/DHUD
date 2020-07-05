@@ -22,7 +22,9 @@ function init() {
     //create light
     var light= createLight(scene);
     //create ground
-    var ground= createGround(scene);     
+    var ground= createGround(scene);  
+    //create sky
+    var sky=createSky(scene);  
     //create sphere
     var sphere=createBall(scene);
     //create lane
@@ -38,6 +40,7 @@ function init() {
     createMass(scene,sphere,ground);
     createMass2(scene,lane,pin,pin2);
     createBowlMass(scene,bowl);
+    
     
 
 }
@@ -60,7 +63,7 @@ function createScene(engine) {
     engine.runRenderLoop(function () {
         scene.render();
     });
-    scene.debugLayer.show();
+    //scene.debugLayer.show();
     return scene;
 }
 function createFreeCamera(scene) {
@@ -72,7 +75,7 @@ function createFreeCamera(scene) {
     return camera;
 }
 function createGround(scene){
-    var ground=BABYLON.Mesh.CreateGround("ground",6,12,1,scene);
+    var ground=BABYLON.Mesh.CreateGround("ground",12,12,1,scene);
     //create Material
     var groundMat=new BABYLON.StandardMaterial("groundMat",scene);
     groundMat.diffuseTexture=new BABYLON.Texture("texture/grass2.jpg",scene);
@@ -96,7 +99,7 @@ function createBall(scene){
     sphereMat.diffuseTexture=new BABYLON.Texture("texture/bowling.jpg",scene);
     sphere.material=sphereMat;
     //sphere location
-    sphere.position.y=1;  
+    sphere.position.y=1.5;  
     sphere.position.z=-lanelength/2+0.1; 
     return sphere;
 }
@@ -110,6 +113,18 @@ function createLane(scene){
     lane.scaling=new BABYLON.Vector3(lanewidth,laneheight,lanelength);
     lane.position.y=laneheight/2;
     return lane;
+}
+function createSky(scene){
+    var sky= new BABYLON.Mesh.CreateBox("sky",50,scene);
+    var skyMat=new BABYLON.StandardMaterial("skybox",scene);
+    skyMat.backFaceCulling=false;
+    skyMat.reflectionTexture=new BABYLON.CubeTexture("texture/TropicalSunnyDay",scene);
+    skyMat.reflectionTexture.coordinatesMode=BABYLON.Texture.SKYBOX_MODE;
+    skyMat.diffuseColor=new BABYLON.Color3(0,0,0);
+    skyMat.specularColor=new BABYLON.Color3(0,0,0);
+    sky.material=skyMat;
+    
+    return sky;
 }
 function createGravity(scene){
     var gravity=scene.enablePhysics();
