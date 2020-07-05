@@ -1,9 +1,13 @@
-﻿///<reference path="scripts/babylon.max.js" />
-
+﻿
 var laneheight=0.2;
-var lanewidth=0.7;
-var lanelength=6;
-
+var lanewidth=1;
+var lanelength=9;
+//bowl constant
+var bowlHeight=0.48;
+var bowldiameter=0.15;
+var distanceBetweenRows = 0.3;
+var distanceBetweenBowl = 0.1;
+var bowlYPosition=bowlHeight/2+laneheight;
 function init() {
     //Init the engine
     var engine = initEngine();
@@ -26,11 +30,14 @@ function init() {
     //create pin 1 2
     var pin=createPin(scene);
     var pin2=createPin2(scene);
+    //create bowling
+    var bowl=createBowl(scene);
     //create gravity
     var grav=createGravity(scene);   
     //create mass
     createMass(scene,sphere,ground);
     createMass2(scene,lane,pin,pin2);
+    createBowlMass(scene,bowl);
 
 }
 
@@ -46,7 +53,6 @@ function initEngine() {
     });
     return engine;
 }
-
 function createScene(engine) {
     var scene = new BABYLON.Scene(engine);
     // Register a render loop to repeatedly render the scene
@@ -56,7 +62,6 @@ function createScene(engine) {
     scene.debugLayer.show();
     return scene;
 }
-
 function createFreeCamera(scene) {
     var camera = new BABYLON.FreeCamera("cam", new BABYLON.Vector3(0.1, 0.9, -5), scene);
 
@@ -70,19 +75,23 @@ function createGround(scene){
 
     return ground;
 }
-
 function createLight(scene){
     var light=new BABYLON.DirectionalLight("directlight",new BABYLON.Vector3(0,-1,0),scene);
     light.intensity=0.7;
+
+    //create a second one to simulate light on dark sides
+    var secondLight = new BABYLON.DirectionalLight("dir02", new BABYLON.Vector3(-0.5, -0.5, 0.5), scene);
+    secondLight.intensity = 0.35;
+
     return light;
 }
 function createBall(scene){
     var sphere=new BABYLON.Mesh.CreateSphere("ball",12,0.22,scene);
     //sphere location
-    sphere.position.y=2;   
+    sphere.position.y=2;  
+    sphere.position.z=-lanelength/2+0.1; 
     return sphere;
 }
-
 function createLane(scene){
     var lane=new BABYLON.Mesh.CreateBox("lane",1,scene,false);
     lane.scaling=new BABYLON.Vector3(lanewidth,laneheight,lanelength);
@@ -107,14 +116,46 @@ function createPin2(scene){
     pin.position.y=laneheight/2;
     return pin;
 }
+function createBowl(scene){
+    var length=10;
+    var bowl=[length];  
+    var i;
+    for(i=0;i<length;i++){
+        bowl[i]=new BABYLON.Mesh.CreateCylinder("bowl",bowlHeight,bowldiameter/2,bowldiameter,16, scene);
+        bowl[i].position.y=bowlYPosition;
+    }
+    //row 1   
+    bowl[0].position.z=lanelength/2-distanceBetweenRows*3-0.01-bowldiameter*3;
+    //row 2
+    bowl[1].position.x=-distanceBetweenBowl/2-bowldiameter/2;
+    bowl[1].position.z=bowl[0].position.z+distanceBetweenRows;
+    bowl[2].position.x=distanceBetweenBowl/2+bowldiameter/2;
+    bowl[2].position.z=bowl[0].position.z+distanceBetweenRows;
+    //row 3
+    bowl[3].position.z=bowl[2].position.z+distanceBetweenRows;
+    bowl[4].position.x=-bowldiameter-distanceBetweenBowl;
+    bowl[4].position.z=bowl[2].position.z+distanceBetweenRows;
+    bowl[5].position.x=bowldiameter+distanceBetweenBowl;
+    bowl[5].position.z=bowl[2].position.z+distanceBetweenRows;
+    //row 4
+    bowl[6].position.x=-distanceBetweenBowl/2-bowldiameter/2;
+    bowl[6].position.z=bowl[5].position.z+distanceBetweenRows;
+    bowl[7].position.x=distanceBetweenBowl/2+bowldiameter/2;
+    bowl[7].position.z=bowl[5].position.z+distanceBetweenRows;
+    bowl[8].position.x=3*(-distanceBetweenBowl-bowldiameter)/2;
+    bowl[8].position.z=bowl[5].position.z+distanceBetweenRows;
+    bowl[9].position.x=3*(distanceBetweenBowl+bowldiameter)/2;
+    bowl[9].position.z=bowl[5].position.z+distanceBetweenRows;
+
+    return bowl;
+}
 function createMass(scene,sphere,ground){
-    sphere.physicsImpostor = new BABYLON.PhysicsImpostor(sphere, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 0.4, restitution: 0.1 }, scene);
+    sphere.physicsImpostor = new BABYLON.PhysicsImpostor(sphere, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 0.1, restitution: 0.1 }, scene);
     ground.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, scene);    
     var spheremass = sphere.physicsImpostor;
     var groundmass = ground.physicsImpostor;  
     return [spheremass,groundmass];
 }
-
 function createMass2(scene,lane,pin,pin2){
     lane.physicsImpostor = new BABYLON.PhysicsImpostor(lane, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, scene);    
     pin.physicsImpostor = new BABYLON.PhysicsImpostor(pin, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, scene);    
@@ -123,4 +164,14 @@ function createMass2(scene,lane,pin,pin2){
     var pinmass=pin.physicsImpostor;
     var pin2mass=pin2.physicsImpostor;
     return [lanemass,pinmass,pin2mass];
+}
+function createBowlMass(scene,bowl){
+    var i;
+    var bowlmass=[10];
+    for(i=0;i<10;i++){
+        bowl[i].physicsImpostor = new BABYLON.PhysicsImpostor(bowl[i], BABYLON.PhysicsImpostor.CylinderImpostor, { mass: 0.08, restitution: 0.1 }, scene);
+        bowlmass[i]=bowl[i].physicsImpostor;
+    }
+    
+    return bowlmass;
 }
