@@ -38,6 +38,7 @@ function init() {
     createMass(scene,sphere,ground);
     createMass2(scene,lane,pin,pin2);
     createBowlMass(scene,bowl);
+    
 
 }
 
@@ -63,7 +64,7 @@ function createScene(engine) {
     return scene;
 }
 function createFreeCamera(scene) {
-    var camera = new BABYLON.FreeCamera("cam", new BABYLON.Vector3(0.1, 0.9, -5), scene);
+    var camera = new BABYLON.FreeCamera("cam", new BABYLON.Vector3(2,1, -10), scene);
 
     camera.speed = 0.8;
     camera.inertia = 0.4;
@@ -71,29 +72,41 @@ function createFreeCamera(scene) {
     return camera;
 }
 function createGround(scene){
-    var ground=BABYLON.Mesh.CreateGround("ground",3,lanelength,1,scene);
-
+    var ground=BABYLON.Mesh.CreateGround("ground",6,12,1,scene);
+    //create Material
+    var groundMat=new BABYLON.StandardMaterial("groundMat",scene);
+    groundMat.diffuseTexture=new BABYLON.Texture("texture/grass2.jpg",scene);
+    ground.material=groundMat;
     return ground;
 }
 function createLight(scene){
     var light=new BABYLON.DirectionalLight("directlight",new BABYLON.Vector3(0,-1,0),scene);
-    light.intensity=0.7;
+    light.intensity=0.9;
 
     //create a second one to simulate light on dark sides
     var secondLight = new BABYLON.DirectionalLight("dir02", new BABYLON.Vector3(-0.5, -0.5, 0.5), scene);
-    secondLight.intensity = 0.35;
+    secondLight.intensity = 0.6;
 
     return light;
 }
 function createBall(scene){
     var sphere=new BABYLON.Mesh.CreateSphere("ball",12,0.22,scene);
+    //material
+    var sphereMat=new BABYLON.StandardMaterial("ballMat",scene);
+    sphereMat.diffuseTexture=new BABYLON.Texture("texture/bowling.jpg",scene);
+    sphere.material=sphereMat;
     //sphere location
-    sphere.position.y=2;  
+    sphere.position.y=1;  
     sphere.position.z=-lanelength/2+0.1; 
     return sphere;
 }
 function createLane(scene){
     var lane=new BABYLON.Mesh.CreateBox("lane",1,scene,false);
+    //create material
+    var laneMat=new BABYLON.StandardMaterial("ballMat",scene);
+    laneMat.diffuseTexture=new BABYLON.Texture("texture/wood.jpg",scene);
+    lane.material=laneMat;
+    //lane scaling
     lane.scaling=new BABYLON.Vector3(lanewidth,laneheight,lanelength);
     lane.position.y=laneheight/2;
     return lane;
@@ -105,6 +118,15 @@ function createGravity(scene){
 function createPin(scene){
     var pin=new BABYLON.Mesh.CreateBox("pin",1,scene,false);
     pin.scaling=new BABYLON.Vector3(0.2,laneheight,lanelength);
+    //create material
+    var pinMat=new BABYLON.StandardMaterial("ballMat",scene);
+    var brickTexture = new BABYLON.BrickProceduralTexture("brickTexture", 128, scene);
+    brickTexture.numberOfBricksWidth = 10;
+    brickTexture.numberOfBric0ksHeight = 2;
+    brickTexture.uScale = 10;
+    pinMat.diffuseTexture=brickTexture;
+    pin.material=pinMat;
+    //pin position
     pin.position.x=0.3+lanewidth/2;
     pin.position.y=laneheight/2;
     return pin;
@@ -112,6 +134,16 @@ function createPin(scene){
 function createPin2(scene){
     var pin=new BABYLON.Mesh.CreateBox("pin",1,scene,false);
     pin.scaling=new BABYLON.Vector3(0.2,laneheight,lanelength);
+    //create material
+    //create material
+    var pinMat=new BABYLON.StandardMaterial("ballMat",scene);
+    var brickTexture = new BABYLON.BrickProceduralTexture("brickTexture", 128, scene);
+    brickTexture.numberOfBricksWidth = 10;
+    brickTexture.numberOfBric0ksHeight = 2;
+    brickTexture.uScale = 10;
+    pinMat.diffuseTexture=brickTexture;
+    pin.material=pinMat;
+    //pin location
     pin.position.x=-(0.3+lanewidth/2);
     pin.position.y=laneheight/2;
     return pin;
@@ -120,9 +152,12 @@ function createBowl(scene){
     var length=10;
     var bowl=[length];  
     var i;
+    var pinMat=new BABYLON.StandardMaterial("pinMat",scene);
+    pinMat.diffuseTexture=new BABYLON.Texture("texture/pin-texture.png",scene);
     for(i=0;i<length;i++){
         bowl[i]=new BABYLON.Mesh.CreateCylinder("bowl",bowlHeight,bowldiameter/2,bowldiameter,16, scene);
-        bowl[i].position.y=bowlYPosition;
+        bowl[i].position.y=bowlYPosition;     
+        bowl[i].material=pinMat;
     }
     //row 1   
     bowl[0].position.z=lanelength/2-distanceBetweenRows*3-0.01-bowldiameter*3;
