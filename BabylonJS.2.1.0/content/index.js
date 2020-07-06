@@ -41,7 +41,7 @@ function init() {
     createMass2(scene,lane,pin,pin2);
     createBowlMass(scene,bowl);
     
-    
+    generateActionManager(scene);
 
 }
 
@@ -63,12 +63,13 @@ function createScene(engine) {
     engine.runRenderLoop(function () {
         scene.render();
     });
+    scene.collisionsEnabled = true;
     //scene.debugLayer.show();
     return scene;
 }
 function createFreeCamera(scene) {
-    var camera = new BABYLON.FreeCamera("cam", new BABYLON.Vector3(2,1, -10), scene);
-
+    var camera = new BABYLON.FreeCamera("cam", new BABYLON.Vector3(2, 1, -8), scene);
+2
     camera.speed = 0.8;
     camera.inertia = 0.4;
 
@@ -101,6 +102,7 @@ function createBall(scene){
     //sphere location
     sphere.position.y=1.5;  
     sphere.position.z=-lanelength/2+0.1; 
+
     return sphere;
 }
 function createLane(scene){
@@ -200,16 +202,20 @@ function createBowl(scene){
     return bowl;
 }
 function createMass(scene,sphere,ground){
-    sphere.physicsImpostor = new BABYLON.PhysicsImpostor(sphere, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 0.1, restitution: 0.1 }, scene);
-    ground.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, scene);    
+    sphere.physicsImpostor = new BABYLON.PhysicsImpostor(sphere, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 10,friction:0.4, restitution: 0.1 }, scene);
+    ground.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, scene);  
+    sphere.checkCollisions = true;  
     var spheremass = sphere.physicsImpostor;
     var groundmass = ground.physicsImpostor;  
     return [spheremass,groundmass];
 }
 function createMass2(scene,lane,pin,pin2){
-    lane.physicsImpostor = new BABYLON.PhysicsImpostor(lane, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, scene);    
+    lane.physicsImpostor = new BABYLON.PhysicsImpostor(lane, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0,fricion:0.4, restitution: 0.5 }, scene);    
     pin.physicsImpostor = new BABYLON.PhysicsImpostor(pin, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, scene);    
-    pin2.physicsImpostor = new BABYLON.PhysicsImpostor(pin2, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, scene);    
+    pin2.physicsImpostor = new BABYLON.PhysicsImpostor(pin2, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, scene);   
+    lane.checkCollisions = true;  
+    pin.checkCollisions = true;
+    pin2.checkCollisions = true;
     var lanemass=lane.physicsImpostor;
     var pinmass=pin.physicsImpostor;
     var pin2mass=pin2.physicsImpostor;
@@ -219,9 +225,30 @@ function createBowlMass(scene,bowl){
     var i;
     var bowlmass=[10];
     for(i=0;i<10;i++){
-        bowl[i].physicsImpostor = new BABYLON.PhysicsImpostor(bowl[i], BABYLON.PhysicsImpostor.CylinderImpostor, { mass: 0.08, restitution: 0.1 }, scene);
-        bowlmass[i]=bowl[i].physicsImpostor;
+        bowl[i].physicsImpostor = new BABYLON.PhysicsImpostor(bowl[i], BABYLON.PhysicsImpostor.CylinderImpostor, { mass: 1,fricion:0.1, restitution: 0.1 }, scene);
+        bowl[i].checkCollisions=true;
+        bowlmass[i]=bowl[i].physicsImpostor;      
     }
     
     return bowlmass;
+}
+
+function generateActionManager(scene) {
+    scene.actionManager = new BABYLON.ActionManager(scene);
+
+    //generate a new color each time I press "c"
+    var ball = scene.getMeshByName("ball");
+    //scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction({ trigger: BABYLON.ActionManager.OnKeyUpTrigger, parameter: "c" },
+        //the function that will be executed
+        scene.registerBeforeRender(function () {
+            //ball.rotate(BABYLON.Axis.Z, 0.1);
+            //ball.position.z += 0.01;
+            var forceDirection = new BABYLON.Vector3(0, 0, 0.3);
+            var forceMagnitude = 50;
+            var contactLocalRefPoint = BABYLON.Vector3.Zero();
+    
+                ball.physicsImpostor.applyForce(forceDirection.scale(forceMagnitude), ball.getAbsolutePosition().add(contactLocalRefPoint));
+
+        })
+    ;
 }
