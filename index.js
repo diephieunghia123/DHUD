@@ -38,12 +38,22 @@ function init() {
     generateActionManager(scene);
 }
 
+function showLoadingScreen(canvas, engine) {
+    let defaultLoadingScreen = new BABYLON.DefaultLoadingScreen(canvas, "Please Wait", "black");
+    engine.loadingScreen = defaultLoadingScreen;
+    engine.displayLoadingUI();
+};
+
+let hideLoadingScreen = function (engine) {
+    engine.hideLoadingUI();
+};
+
 function initEngine() {
     // Get the canvas element from index.html
     const canvas = document.getElementById("renderCanvas");
     // Initialize the BABYLON 3D engine
     const engine = new BABYLON.Engine(canvas, true);
-
+    showLoadingScreen(canvas, engine);
     // Watch for browser/canvas resize events
     window.addEventListener("resize", function () {
         engine.resize();
@@ -56,6 +66,9 @@ function createScene(engine) {
     // Register a render loop to repeatedly render the scene
     engine.runRenderLoop(function () {
         scene.render();
+        scene.afterRender = function () {
+            hideLoadingScreen(engine);
+        }
     });
     scene.enablePhysics();
     scene.collisionsEnabled = true;
@@ -64,7 +77,7 @@ function createScene(engine) {
 }
 
 function createFreeCamera(scene) {
-    const camera = new BABYLON.FreeCamera("cam", new BABYLON.Vector3(2, 1, -8), scene);
+    const camera = new BABYLON.FreeCamera("cam", new BABYLON.Vector3(0, 1.5, -8), scene);
     camera.speed = 0.8;
     camera.inertia = 0.4;
 
@@ -125,7 +138,7 @@ function createLane(scene) {
     lane.physicsImpostor = new BABYLON.PhysicsImpostor(lane, BABYLON.PhysicsImpostor.BoxImpostor, {
         mass: 0,
         friction: 0.4,
-        restitution: 0.5
+        restitution: 0
     }, scene);
     lane.checkCollisions = true;
 
@@ -181,7 +194,7 @@ function createPins(scene) {
         pins[i].physicsImpostor = new BABYLON.PhysicsImpostor(pins[i], BABYLON.PhysicsImpostor.CylinderImpostor, {
             mass: 1,
             friction: 0.1,
-            restitution: 0.1
+            restitution: 0
         }, scene);
         pins[i].checkCollisions = true;
     }
@@ -213,12 +226,10 @@ function createPins(scene) {
 
 
 function generateActionManager(scene) {
-    scene.actionManager = new BABYLON.ActionManager(scene);
+    //scene.actionManager = new BABYLON.ActionManager(scene);
     const ball = scene.getMeshByName("ball");
     //the function that will be executed
-    scene.registerBeforeRender(function () {
-        //ball.rotate(BABYLON.Axis.Z, 0.1);
-        //ball.position.z += 0.01;
+    scene.registerAfterRender(function () {
         const forceDirection = new BABYLON.Vector3(0, 0, 0.3);
         const forceMagnitude = 30;
         const contactLocalRefPoint = BABYLON.Vector3.Zero();
