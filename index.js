@@ -23,9 +23,7 @@ function init() {
     gutter2.position.x = -(0.3 + lanewidth / 2);
     const pin = createPins(scene);
     const sphere = createBall(scene);
-
     generateActionManager(scene);
-
 }
 
 function showLoadingScreen(canvas, engine) {
@@ -79,6 +77,7 @@ function createGround(scene) {
         restitution: 0.9
     }, scene);
     ground.receiveShadows = true;
+    ground.checkCollisions = true;
     return ground;
 }
 
@@ -163,7 +162,7 @@ function createPins(scene) {
     const pinMat = new BABYLON.StandardMaterial("pinMat", scene);
     pinMat.diffuseTexture = new BABYLON.Texture("texture/pin-texture.png", scene);
     for (i = 0; i < length; i++) {
-        pins[i] = new BABYLON.Mesh.CreateCylinder("pins", pinHeight, pinDiameter / 2, pinDiameter, 16, scene);
+        pins[i] = new BABYLON.Mesh.CreateCylinder("pin" + (i + 1), pinHeight, pinDiameter / 2, pinDiameter, 16, scene);
         pins[i].position.y = pinYPosition;
         pins[i].material = pinMat;
         pins[i].physicsImpostor = new BABYLON.PhysicsImpostor(pins[i], BABYLON.PhysicsImpostor.CylinderImpostor, {
@@ -196,6 +195,14 @@ function createPins(scene) {
     pins[9].position.x = 3 * (distanceBetweenPins + pinDiameter) / 2;
     pins[9].position.z = pins[5].position.z + distanceBetweenRows;
     return pins;
+}
+
+function createForceIndicator(scene) {
+
+}
+
+function createAngleIndicator(scene) {
+
 }
 
 function generateActionManager(scene) {
