@@ -99,8 +99,8 @@ function createBall(scene) {
     sphere.position.z = -lanelength / 2 + 0.5;
     sphere.physicsImpostor = new BABYLON.PhysicsImpostor(sphere, BABYLON.PhysicsImpostor.SphereImpostor, {
         mass: 10,
-        friction: 0.4,
-        restitution: 1
+        friction: 15,
+        restitution: 0
     }, scene);
     return sphere;
 }
@@ -202,10 +202,9 @@ function generateActionManager(scene) {
     scene.actionManager = new BABYLON.ActionManager(scene);
     let alpha = 0;
     let stopRolling = false;
-    scene.registerBeforeRender(function () {
+    scene.registerAfterRender(function () {
         ball.position.x = lanewidth / 3 * Math.cos(alpha);
-        if (stopRolling) { alpha += 0; }
-        else {
+        if (!stopRolling) {
             alpha += 0.05;
             ball.rotate(BABYLON.Axis.Z, lanewidth / 20 * Math.sin(alpha), BABYLON.Space.WORLD);
         }
@@ -215,5 +214,14 @@ function generateActionManager(scene) {
         { trigger: BABYLON.ActionManager.OnKeyUpTrigger, parameter: "c" },
         function () {
             stopRolling = !stopRolling;
+        }))
+    scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(
+        { trigger: BABYLON.ActionManager.OnKeyUpTrigger, parameter: "x" },
+        function () {
+            stopRolling = true;
+            const forceDirection = new BABYLON.Vector3(0, 0, 100);
+            const forceMagnitude = 50;
+            const contactLocalRefPoint = BABYLON.Vector3.Zero();
+            ball.physicsImpostor.applyForce(forceDirection.scale(forceMagnitude), ball.getAbsolutePosition().add(contactLocalRefPoint));
         }))
 };
