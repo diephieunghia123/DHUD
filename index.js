@@ -38,12 +38,9 @@ let hideLoadingScreen = function (engine) {
 };
 
 function initEngine() {
-    // Get the canvas element from index.html
     const canvas = document.getElementById("renderCanvas");
-    // Initialize the BABYLON 3D engine
     const engine = new BABYLON.Engine(canvas, true);
     showLoadingScreen(canvas, engine);
-    // Watch for browser/canvas resize events
     window.addEventListener("resize", function () {
         engine.resize();
     });
@@ -98,12 +95,12 @@ function createBall(scene) {
     const sphereMat = new BABYLON.StandardMaterial("ballMat", scene);
     sphereMat.diffuseTexture = new BABYLON.Texture("texture/bowling.jpg", scene);
     sphere.material = sphereMat;
-    sphere.position.y = 1.5;
-    sphere.position.z = -lanelength / 2 + 0.1;
+    sphere.position.y = 10;
+    sphere.position.z = -lanelength / 2 + 0.5;
     sphere.physicsImpostor = new BABYLON.PhysicsImpostor(sphere, BABYLON.PhysicsImpostor.SphereImpostor, {
         mass: 10,
         friction: 0.4,
-        restitution: 0.1
+        restitution: 1
     }, scene);
     return sphere;
 }
@@ -169,8 +166,8 @@ function createPins(scene) {
         pins[i].material = pinMat;
         pins[i].physicsImpostor = new BABYLON.PhysicsImpostor(pins[i], BABYLON.PhysicsImpostor.CylinderImpostor, {
             mass: 1,
-            friction: 0.1,
-            restitution: 0
+            friction: 0.5,
+            restitution: 1
         }, scene);
         pins[i].checkCollisions = true;
     }
@@ -196,21 +193,27 @@ function createPins(scene) {
     pins[8].position.z = pins[5].position.z + distanceBetweenRows;
     pins[9].position.x = 3 * (distanceBetweenPins + pinDiameter) / 2;
     pins[9].position.z = pins[5].position.z + distanceBetweenRows;
-
     return pins;
 }
 
 function generateActionManager(scene) {
-    scene.actionManager = new BABYLON.ActionManager(scene);
     const ball = scene.getMeshByName("ball");
-    var alpha = 0;
-    scene.registerBeforeRender(function () {
-        //const forceDirection = new BABYLON.Vector3(0, 0, 0.5);
-        //const forceMagnitude = 150;
-        //const contactLocalRefPoint = BABYLON.Vector3.Zero();
-        //ball.physicsImpostor.applyForce(forceDirection.scale(forceMagnitude), ball.getAbsolutePosition().add(contactLocalRefPoint));
-        ball.rotate(BABYLON.Axis.Z, lanewidth / 5 * Math.sin(alpha), BABYLON.Space.WORLD);
-        ball.position.x = lanewidth / 5 * Math.cos(alpha);
-        alpha += 0.05;
+    ball.actionManager = new BABYLON.ActionManager(scene);
+    scene.actionManager = new BABYLON.ActionManager(scene);
+    let alpha = 0;
+    let stopanimation = false;
+    let animation = scene.registerBeforeRender(function () {
+        ball.position.x = lanewidth / 3 * Math.cos(alpha);
+        if (stopanimation) { alpha += 0; }
+        else {
+            alpha += 0.05;
+            ball.rotate(BABYLON.Axis.Z, lanewidth / 20 * Math.sin(alpha), BABYLON.Space.WORLD);
+        }
+
     });
-}
+    scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(
+        { trigger: BABYLON.ActionManager.OnKeyUpTrigger, parameter: "c" },
+        function () {
+            stopanimation = !stopanimation;
+        }))
+};
