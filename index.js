@@ -201,8 +201,9 @@ function createPins(scene) {
 function generateActionManager(scene) {
     const ball = scene.getMeshByName("ball");
     scene.actionManager = new BABYLON.ActionManager(scene);
-    let alpha = 0;
-    let beta = 0;
+    let w_roll = 0;
+    let w_force = 0;
+    let w_angle = 0;
     let stopRolling = false;
     let stopModifyingAngle = false;
     let stopModifyingForce = false;
@@ -210,16 +211,17 @@ function generateActionManager(scene) {
     let force;
     scene.registerAfterRender(function () {
         if (!stopRolling) {
-            ball.position.x = lanewidth / 3 * Math.cos(alpha);
-            alpha += 0.04;
-            ball.rotate(BABYLON.Axis.Z, lanewidth / 20 * Math.sin(alpha), BABYLON.Space.WORLD);
+            ball.position.x = lanewidth / 3 * Math.cos(w_roll);
+            w_roll += 0.04;
+            ball.rotate(BABYLON.Axis.Z, lanewidth / 20 * Math.sin(w_roll), BABYLON.Space.WORLD);
         }
         if (!stopModifyingForce) {
-            force = 70 * Math.abs(Math.cos(beta));
-            beta += 0.02
+            force = 35 * Math.abs(Math.cos(w_force));
+            w_force += 0.02;
         }
         if (!stopModifyingAngle) {
-            // Add Code Here
+            shootAngle = Math.PI/4 * Math.cos(w_angle) + Math.PI/2;
+            w_angle += 0.01;
         }
     });
     scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(
@@ -246,7 +248,7 @@ function generateActionManager(scene) {
             stopRolling = true;
             stopModifyingAngle = true;
             stopModifyingForce = true;
-            const forceDirection = new BABYLON.Vector3(0, 0, 50);
+            const forceDirection = new BABYLON.Vector3(100*Math.cos(shootAngle), 0, 100*Math.sin(shootAngle));
             const forceMagnitude = force;
             const contactLocalRefPoint = BABYLON.Vector3.Zero();
             ball.physicsImpostor.applyForce(forceDirection.scale(forceMagnitude), ball.getAbsolutePosition().add(contactLocalRefPoint));
