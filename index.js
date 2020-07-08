@@ -167,7 +167,7 @@ function createPins(scene) {
         pins[i].position.y = pinYPosition;
         pins[i].material = pinMat;
         pins[i].physicsImpostor = new BABYLON.PhysicsImpostor(pins[i], BABYLON.PhysicsImpostor.CylinderImpostor, {
-            mass: 1,
+            mass: 5,
             friction: 0.5,
             restitution: 1
         }, scene);
@@ -207,11 +207,11 @@ function generateActionManager(scene) {
     let stopModifyingAngle = false;
     let stopModifyingForce = false;
     let shootAngle = 0;
-    let force = 0;
+    let force;
     scene.registerAfterRender(function () {
         if (!stopRolling) {
             ball.position.x = lanewidth / 3 * Math.cos(alpha);
-            alpha += 0.05;
+            alpha += 0.04;
             ball.rotate(BABYLON.Axis.Z, lanewidth / 20 * Math.sin(alpha), BABYLON.Space.WORLD);
         }
         if (!stopModifyingForce) {
@@ -246,7 +246,7 @@ function generateActionManager(scene) {
             stopRolling = true;
             stopModifyingAngle = true;
             stopModifyingForce = true;
-            const forceDirection = new BABYLON.Vector3(0, 0, 100);
+            const forceDirection = new BABYLON.Vector3(0, 0, 50);
             const forceMagnitude = force;
             const contactLocalRefPoint = BABYLON.Vector3.Zero();
             ball.physicsImpostor.applyForce(forceDirection.scale(forceMagnitude), ball.getAbsolutePosition().add(contactLocalRefPoint));
