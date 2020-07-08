@@ -248,7 +248,7 @@ function generateActionManager(scene) {
             stopRolling = true;
             stopModifyingAngle = true;
             stopModifyingForce = true;
-            const forceDirection = new BABYLON.Vector3(100*Math.cos(shootAngle), 0, 100*Math.sin(shootAngle));
+            const forceDirection = new BABYLON.Vector3(100*Math.cos(shootAngle), 0.5, 100*Math.sin(shootAngle));
             const forceMagnitude = force;
             const contactLocalRefPoint = BABYLON.Vector3.Zero();
             ball.physicsImpostor.applyForce(forceDirection.scale(forceMagnitude), ball.getAbsolutePosition().add(contactLocalRefPoint));
