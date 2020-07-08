@@ -201,10 +201,10 @@ function generateActionManager(scene) {
     ball.actionManager = new BABYLON.ActionManager(scene);
     scene.actionManager = new BABYLON.ActionManager(scene);
     let alpha = 0;
-    let stopanimation = false;
-    let animation = scene.registerBeforeRender(function () {
+    let stopRolling = false;
+    scene.registerBeforeRender(function () {
         ball.position.x = lanewidth / 3 * Math.cos(alpha);
-        if (stopanimation) { alpha += 0; }
+        if (stopRolling) { alpha += 0; }
         else {
             alpha += 0.05;
             ball.rotate(BABYLON.Axis.Z, lanewidth / 20 * Math.sin(alpha), BABYLON.Space.WORLD);
@@ -214,6 +214,6 @@ function generateActionManager(scene) {
     scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(
         { trigger: BABYLON.ActionManager.OnKeyUpTrigger, parameter: "c" },
         function () {
-            stopanimation = !stopanimation;
+            stopRolling = !stopRolling;
         }))
 };
