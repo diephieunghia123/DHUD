@@ -23,10 +23,10 @@ function init() {
         const lane = createLane(scene);
         const gutter1 = createGutter(scene);
         const gutter2 = createGutter(scene);
-        gutter2.position.x = -(0.3 + lanewidth / 2);
+        gutter2.position.x = -(0.35 + lanewidth / 2);
         const pin = createPins(scene);
         const ball = createBall(scene);
-        generateActionManager(scene, followCam);
+        generateActionManager(canvas, scene, followCam);
     }
 }
 
@@ -59,6 +59,7 @@ function createScene(engine) {
     });
     scene.enablePhysics();
     scene.collisionsEnabled = true;
+    scene.gravity = new BABYLON.Vector3(0, -0.9, 0);
     scene.debugLayer.show();
     return scene;
 }
@@ -67,6 +68,7 @@ function createUniversalCamera(scene) {
     const camera = new BABYLON.UniversalCamera("cam", new BABYLON.Vector3(0, 1.5, -8), scene);
     camera.speed = 0.8;
     camera.inertia = 0.4;
+    camera.checkCollisions = true;
     return camera;
 }
 
@@ -84,7 +86,8 @@ function createGround(scene) {
     ground.material = groundMat;
     ground.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.BoxImpostor, {
         mass: 0,
-        restitution: 0.9
+        friction: 100,
+        restitution: 0
     }, scene);
     ground.receiveShadows = true;
     ground.checkCollisions = true;
@@ -148,14 +151,14 @@ function createSky(scene) {
 
 function createGutter(scene) {
     const gutter = new BABYLON.Mesh.CreateBox("gutter", 1, scene, false);
-    gutter.scaling = new BABYLON.Vector3(0.2, laneheight, lanelength);
+    gutter.scaling = new BABYLON.Vector3(0.2, laneheight * 4, lanelength);
     const gutterMat = new BABYLON.StandardMaterial("gutterMat", scene);
     const cloudTexture = new BABYLON.CloudProceduralTexture("cloudTexture", 128, scene);
     cloudTexture.uScale = 10;
     gutterMat.diffuseTexture = cloudTexture;
     gutter.material = gutterMat;
-    gutter.position.x = 0.3 + lanewidth / 2;
-    gutter.position.y = laneheight / 2;
+    gutter.position.x = 0.35 + lanewidth / 2;
+    gutter.position.y = 4 * laneheight / 2;
     gutter.physicsImpostor = new BABYLON.PhysicsImpostor(gutter, BABYLON.PhysicsImpostor.BoxImpostor, {
         mass: 0,
         friction: 1,
@@ -173,12 +176,12 @@ function createPins(scene) {
     pinMat.diffuseTexture = new BABYLON.Texture("texture/pin-texture.png", scene);
     for (i = 0; i < length; i++) {
         pins[i] = new BABYLON.Mesh.CreateCylinder("pin" + (i + 1), pinHeight, pinDiameter / 2, pinDiameter, 16, scene);
-        pins[i].position.y = pinYPosition;
+        pins[i].position.y = pinYPosition + 0.01;
         pins[i].material = pinMat;
         pins[i].physicsImpostor = new BABYLON.PhysicsImpostor(pins[i], BABYLON.PhysicsImpostor.CylinderImpostor, {
-            mass: 7,
+            mass: 1,
             friction: 0.5,
-            restitution: 1
+            restitution: 0
         }, scene);
         pins[i].checkCollisions = true;
     }
@@ -208,16 +211,33 @@ function createPins(scene) {
 }
 
 function createForceIndicator(scene) {
-    // Tao indicator cho bien force
+    const powerMat = new BABYLON.StandardMaterial("powerMat", scene);
+    powerMat.diffuseTexture = new BABYLON.Texture("texture/power-texture.jpg", scene);
+    let power = new BABYLON.Mesh.CreateBox("power", 1, scene, false);
+    power.scaling = new BABYLON.Vector3(0.5, 0.02, 0.5);
+    power.position.x = -2;
+    power.position.z = -lanelength / 2 + 0.6;
+    power.material = powerMat;
+    return power;
 }
 
 function createAngleIndicator(scene) {
-    // Tao indicator cho bien angle
+    const powerMat = new BABYLON.StandardMaterial("powerMat", scene);
+    powerMat.diffuseTexture = new BABYLON.Texture("texture/power-texture.jpg", scene);
+    let angleIndicator = new BABYLON.Mesh.CreateBox("angleIndicator", 1, scene, false);
+    angleIndicator.scaling = new BABYLON.Vector3(0.1, 0.1, 0.1);
+    angleIndicator.position.x = 2;
+    angleIndicator.position.y = 0.025;
+    angleIndicator.position.z = -lanelength / 2 + 0.6;
+    angleIndicator.material = powerMat;
+    return angleIndicator;
 }
 
-function generateActionManager(scene, followCam) {
+function generateActionManager(canvas, scene, followCam) {
     const ball = scene.getMeshByName("ball");
     scene.actionManager = new BABYLON.ActionManager(scene);
+    let power = createForceIndicator(scene);
+    let angleIndicator = createAngleIndicator(scene);
     let w_roll = 0;
     let w_force = 0;
     let w_angle = 0;
@@ -227,19 +247,23 @@ function generateActionManager(scene, followCam) {
     let shootAngle;
     let force;
     let alreadyShot = false;
-    scene.registerAfterRender(function () {
+    scene.registerBeforeRender(function () {
         if (!stopRolling) {
-            ball.position.x = lanewidth / 3 * Math.cos(w_roll);
-            w_roll += 0.04;
+            ball.position.x = lanewidth / 2.5 * Math.cos(w_roll);
             ball.rotate(BABYLON.Axis.Z, lanewidth / 20 * Math.sin(w_roll), BABYLON.Space.WORLD);
+            w_roll += 0.04;
         }
         if (!stopModifyingForce) {
             force = 35 * Math.abs(Math.cos(w_force));
+            power.position.y = force / 20 + 0.25;
             w_force += 0.02;
         }
         if (!stopModifyingAngle) {
-            shootAngle = Math.PI / 4 * Math.cos(w_angle) + Math.PI / 2;
-            w_angle += 0.01;
+            shootAngle = (Math.PI / 4) * Math.cos(w_angle) + Math.PI / 2;
+            angleIndicator.position.x = 2 + Math.cos(shootAngle);
+            angleIndicator.position.y = Math.sin(shootAngle) - 0.1;
+            //angleIndicator.rotate(BABYLON.Axis.Z, (Math.PI / 4) * Math.sin(w_angle), BABYLON.Space.WORLD);
+            w_angle += 0.02;
         }
     });
     scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(
@@ -251,13 +275,13 @@ function generateActionManager(scene, followCam) {
     scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(
         { trigger: BABYLON.ActionManager.OnKeyUpTrigger, parameter: "x" },
         function () {
-            stopModifyingForce = !stopModifyingForce;
+            if (!alreadyShot) { stopModifyingForce = !stopModifyingForce; }
         }))
 
     scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(
         { trigger: BABYLON.ActionManager.OnKeyUpTrigger, parameter: "z" },
         function () {
-            stopModifyingAngle = !stopModifyingAngle;
+            if (!alreadyShot) { stopModifyingAngle = !stopModifyingAngle; }
         }))
 
     scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(
@@ -268,11 +292,12 @@ function generateActionManager(scene, followCam) {
                 stopModifyingAngle = true;
                 stopModifyingForce = true;
                 alreadyShot = true;
-                const forceDirection = new BABYLON.Vector3(100 * Math.cos(shootAngle), 0.5, 100 * Math.sin(shootAngle));
+                const forceDirection = new BABYLON.Vector3(100 * Math.cos(shootAngle), 50, 100 * Math.sin(shootAngle));
                 const forceMagnitude = force;
                 const contactLocalRefPoint = BABYLON.Vector3.Zero();
                 ball.physicsImpostor.applyForce(forceDirection.scale(forceMagnitude), ball.getAbsolutePosition().add(contactLocalRefPoint));
                 followCam.lockedTarget = ball;
+                followCam.attachControl(canvas, true);
                 scene.activeCamera = followCam;
                 scene.registerAfterRender(function () {
                     if (ball.position.y < 0) {
