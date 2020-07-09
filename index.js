@@ -264,6 +264,17 @@ function generateActionManager(scene) {
                 const forceMagnitude = force;
                 const contactLocalRefPoint = BABYLON.Vector3.Zero();
                 ball.physicsImpostor.applyForce(forceDirection.scale(forceMagnitude), ball.getAbsolutePosition().add(contactLocalRefPoint));
+                const camera2 = new BABYLON.FollowCamera("FollowCam", new BABYLON.Vector3(0, 3, -5), scene);
+                camera2.radius = 1;
+                camera2.cameraAcceleration = 0.0;
+                camera2.attachControl(document.getElementById("renderCanvas"), true);
+                camera2.lockedTarget = ball;
+                scene.activeCamera = camera2;
+                scene.registerAfterRender(function () {
+                    if (ball.position.y < 0) {
+                        camera2.lockedTarget = null;
+                    }
+                });
             }
         }))
 };
