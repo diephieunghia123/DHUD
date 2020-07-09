@@ -176,10 +176,10 @@ function createPins(scene) {
     pinMat.diffuseTexture = new BABYLON.Texture("texture/pin-texture.png", scene);
     for (i = 0; i < length; i++) {
         pins[i] = new BABYLON.Mesh.CreateCylinder("pin" + (i + 1), pinHeight, pinDiameter / 2, pinDiameter, 16, scene);
-        pins[i].position.y = pinYPosition + 0.01;
+        pins[i].position.y = pinYPosition;
         pins[i].material = pinMat;
         pins[i].physicsImpostor = new BABYLON.PhysicsImpostor(pins[i], BABYLON.PhysicsImpostor.CylinderImpostor, {
-            mass: 1,
+            mass: 0.5,
             friction: 0.5,
             restitution: 0
         }, scene);
@@ -214,10 +214,15 @@ function createForceIndicator(scene) {
     const powerMat = new BABYLON.StandardMaterial("powerMat", scene);
     powerMat.diffuseTexture = new BABYLON.Texture("texture/power-texture.jpg", scene);
     let power = new BABYLON.Mesh.CreateBox("power", 1, scene, false);
-    power.scaling = new BABYLON.Vector3(0.5, 0.02, 0.5);
+    power.scaling = new BABYLON.Vector3(0.05, 0.02, 0.01);
     power.position.x = -2;
     power.position.z = -lanelength / 2 + 0.6;
     power.material = powerMat;
+    let backPlaneBox = new BABYLON.Mesh.CreateBox("backPlaneBox", 1, scene, false);
+    backPlaneBox.scaling = new BABYLON.Vector3(0.1, 2.01, 0.01);
+    backPlaneBox.position.y = 1.255;
+    backPlaneBox.position.x = -2;
+    backPlaneBox.position.z = -3.867;
     return power;
 }
 
@@ -228,7 +233,7 @@ function createAngleIndicator(scene) {
     angleIndicator.scaling = new BABYLON.Vector3(0.1, 0.1, 0.1);
     angleIndicator.position.x = 2;
     angleIndicator.position.y = 0.025;
-    angleIndicator.position.z = -lanelength / 2 + 0.6;
+    angleIndicator.position.z = (-lanelength / 2 + 0.6) * 1.5;
     angleIndicator.material = powerMat;
     return angleIndicator;
 }
@@ -251,18 +256,18 @@ function generateActionManager(canvas, scene, followCam) {
         if (!stopRolling) {
             ball.position.x = lanewidth / 2.5 * Math.cos(w_roll);
             ball.rotate(BABYLON.Axis.Z, lanewidth / 20 * Math.sin(w_roll), BABYLON.Space.WORLD);
-            w_roll += 0.04;
+            w_roll += 0.02;
         }
         if (!stopModifyingForce) {
             force = 35 * Math.abs(Math.cos(w_force));
             power.position.y = force / 20 + 0.25;
-            w_force += 0.02;
+            w_force += 0.01;
         }
         if (!stopModifyingAngle) {
             shootAngle = (Math.PI / 4) * Math.cos(w_angle) + Math.PI / 2;
-            angleIndicator.position.x = 2 + Math.cos(shootAngle);
-            angleIndicator.position.y = Math.sin(shootAngle) - 0.1;
-            //angleIndicator.rotate(BABYLON.Axis.Z, (Math.PI / 4) * Math.sin(w_angle), BABYLON.Space.WORLD);
+            angleIndicator.position.x = 2 + 0.5*Math.cos(shootAngle);
+            angleIndicator.position.y = 0.5*Math.sin(shootAngle) - 0.1;
+
             w_angle += 0.02;
         }
     });
