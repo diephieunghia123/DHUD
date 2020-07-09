@@ -10,10 +10,11 @@ const pinYPosition = pinHeight / 2 + laneheight;
 
 function init() {
     if (BABYLON.Engine.isSupported()) {
-        const engine = initEngine();
+        const canvas = document.getElementById("renderCanvas");
+        const engine = initEngine(canvas);
         const scene = createScene(engine);
-        const camera = createFreeCamera(scene);
-        camera.attachControl(engine.getRenderingCanvas());
+        const camera = createUniversalCamera(scene);
+        camera.attachControl(canvas, true);
         scene.activeCamera = camera;
         const light = createLight(scene);
         const ground = createGround(scene);
@@ -38,8 +39,7 @@ let hideLoadingScreen = function (engine) {
     engine.hideLoadingUI();
 };
 
-function initEngine() {
-    const canvas = document.getElementById("renderCanvas");
+function initEngine(canvas) {
     const engine = new BABYLON.Engine(canvas, true);
     showLoadingScreen(canvas, engine);
     window.addEventListener("resize", function () {
@@ -62,8 +62,8 @@ function createScene(engine) {
     return scene;
 }
 
-function createFreeCamera(scene) {
-    const camera = new BABYLON.FreeCamera("cam", new BABYLON.Vector3(0, 1.5, -8), scene);
+function createUniversalCamera(scene) {
+    const camera = new BABYLON.UniversalCamera("cam", new BABYLON.Vector3(0, 1.5, -8), scene);
     camera.speed = 0.8;
     camera.inertia = 0.4;
     return camera;
