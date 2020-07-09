@@ -9,21 +9,23 @@ const distanceBetweenPins = 0.1;
 const pinYPosition = pinHeight / 2 + laneheight;
 
 function init() {
-    const engine = initEngine();
-    const scene = createScene(engine);
-    const camera = createFreeCamera(scene);
-    camera.attachControl(engine.getRenderingCanvas());
-    scene.activeCamera = camera;
-    const light = createLight(scene);
-    const ground = createGround(scene);
-    const sky = createSky(scene);
-    const lane = createLane(scene);
-    const gutter1 = createGutter(scene);
-    const gutter2 = createGutter(scene);
-    gutter2.position.x = -(0.3 + lanewidth / 2);
-    const pin = createPins(scene);
-    const sphere = createBall(scene);
-    generateActionManager(scene);
+    if (BABYLON.Engine.isSupported()) {
+        const engine = initEngine();
+        const scene = createScene(engine);
+        const camera = createFreeCamera(scene);
+        camera.attachControl(engine.getRenderingCanvas());
+        scene.activeCamera = camera;
+        const light = createLight(scene);
+        const ground = createGround(scene);
+        const sky = createSky(scene);
+        const lane = createLane(scene);
+        const gutter1 = createGutter(scene);
+        const gutter2 = createGutter(scene);
+        gutter2.position.x = -(0.3 + lanewidth / 2);
+        const pin = createPins(scene);
+        const ball = createBall(scene);
+        generateActionManager(scene);
+    }
 }
 
 function showLoadingScreen(canvas, engine) {
@@ -82,28 +84,29 @@ function createGround(scene) {
 }
 
 function createLight(scene) {
-    const light = new BABYLON.DirectionalLight("directlight", new BABYLON.Vector3(0, -1, 0), scene);
-    light.intensity = 0.9;
+    const light = new BABYLON.DirectionalLight("directlight1", new BABYLON.Vector3(0, -1, 0), scene);
+    light.intensity = 1.4;
     const secondLight = new BABYLON.DirectionalLight("directlight2", new BABYLON.Vector3(-0.5, -0.5, 0.5), scene);
-    secondLight.intensity = 0.6;
-    const ball = scene.getMeshByName("ball");
+    secondLight.intensity = 0.9;
+    const thirdLight = new BABYLON.DirectionalLight("directlight3", new BABYLON.Vector3(0.5, 0.5, 0.5), scene);
+    thirdLight.intensity = 0.5;
     return light;
 }
 
 function createBall(scene) {
-    const sphere = new BABYLON.Mesh.CreateSphere("ball", 12, 0.22, scene);
-    const sphereMat = new BABYLON.StandardMaterial("ballMat", scene);
-    sphereMat.diffuseTexture = new BABYLON.Texture("texture/bowling.jpg", scene);
-    sphere.material = sphereMat;
-    sphere.position.y = 10;
-    sphere.position.z = -lanelength / 2 + 0.5;
-    sphere.physicsImpostor = new BABYLON.PhysicsImpostor(sphere, BABYLON.PhysicsImpostor.SphereImpostor, {
+    const ball = new BABYLON.Mesh.CreateSphere("ball", 12, 0.22, scene);
+    const ballMat = new BABYLON.StandardMaterial("ballMat", scene);
+    ballMat.diffuseTexture = new BABYLON.Texture("texture/bowling.jpg", scene);
+    ball.material = ballMat;
+    ball.position.y = 0.31;
+    ball.position.z = -lanelength / 2 + 0.5;
+    ball.physicsImpostor = new BABYLON.PhysicsImpostor(ball, BABYLON.PhysicsImpostor.SphereImpostor, {
         mass: 10,
         friction: 15,
         restitution: 0
     }, scene);
-    sphere.checkCollisions = true;
-    return sphere;
+    ball.checkCollisions = true;
+    return ball;
 }
 
 function createLane(scene) {
@@ -139,16 +142,15 @@ function createGutter(scene) {
     const gutter = new BABYLON.Mesh.CreateBox("gutter", 1, scene, false);
     gutter.scaling = new BABYLON.Vector3(0.2, laneheight, lanelength);
     const gutterMat = new BABYLON.StandardMaterial("gutterMat", scene);
-    const brickTexture = new BABYLON.BrickProceduralTexture("brickTexture", 128, scene);
-    brickTexture.numberOfBricksWidth = 10;
-    brickTexture.numberOfBric0ksHeight = 2;
-    brickTexture.uScale = 10;
-    gutterMat.diffuseTexture = brickTexture;
+    const cloudTexture = new BABYLON.CloudProceduralTexture("cloudTexture", 128, scene);
+    cloudTexture.uScale = 10;
+    gutterMat.diffuseTexture = cloudTexture;
     gutter.material = gutterMat;
     gutter.position.x = 0.3 + lanewidth / 2;
     gutter.position.y = laneheight / 2;
     gutter.physicsImpostor = new BABYLON.PhysicsImpostor(gutter, BABYLON.PhysicsImpostor.BoxImpostor, {
         mass: 0,
+        friction: 1,
         restitution: 0.9
     }, scene);
     gutter.checkCollisions = true;
@@ -198,11 +200,11 @@ function createPins(scene) {
 }
 
 function createForceIndicator(scene) {
-
+    // Tao indicator cho bien force
 }
 
 function createAngleIndicator(scene) {
-
+    // Tao indicator cho bien angle
 }
 
 function generateActionManager(scene) {
@@ -253,13 +255,15 @@ function generateActionManager(scene) {
     scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(
         { trigger: BABYLON.ActionManager.OnKeyUpTrigger, parameter: "v" },
         function () {
-            stopRolling = true;
-            stopModifyingAngle = true;
-            stopModifyingForce = true;
-            alreadyShot = true;
-            const forceDirection = new BABYLON.Vector3(100 * Math.cos(shootAngle), 0.5, 100 * Math.sin(shootAngle));
-            const forceMagnitude = force;
-            const contactLocalRefPoint = BABYLON.Vector3.Zero();
-            ball.physicsImpostor.applyForce(forceDirection.scale(forceMagnitude), ball.getAbsolutePosition().add(contactLocalRefPoint));
+            if (!alreadyShot) {
+                stopRolling = true;
+                stopModifyingAngle = true;
+                stopModifyingForce = true;
+                alreadyShot = true;
+                const forceDirection = new BABYLON.Vector3(100 * Math.cos(shootAngle), 0.5, 100 * Math.sin(shootAngle));
+                const forceMagnitude = force;
+                const contactLocalRefPoint = BABYLON.Vector3.Zero();
+                ball.physicsImpostor.applyForce(forceDirection.scale(forceMagnitude), ball.getAbsolutePosition().add(contactLocalRefPoint));
+            }
         }))
 };
