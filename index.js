@@ -16,6 +16,7 @@ function init() {
         const camera = createUniversalCamera(scene);
         camera.attachControl(canvas, true);
         scene.activeCamera = camera;
+        const followCam = createFollowCam(scene);
         const light = createLight(scene);
         const ground = createGround(scene);
         const sky = createSky(scene);
@@ -25,7 +26,7 @@ function init() {
         gutter2.position.x = -(0.3 + lanewidth / 2);
         const pin = createPins(scene);
         const ball = createBall(scene);
-        generateActionManager(scene);
+        generateActionManager(scene, followCam);
     }
 }
 
@@ -67,6 +68,13 @@ function createUniversalCamera(scene) {
     camera.speed = 0.8;
     camera.inertia = 0.4;
     return camera;
+}
+
+function createFollowCam(scene, canvas) {
+    const followCam = new BABYLON.FollowCamera("FollowCam", new BABYLON.Vector3(0, 3, -5), scene);
+    followCam.radius = 1;
+    followCam.cameraAcceleration = 0;
+    return followCam
 }
 
 function createGround(scene) {
@@ -168,7 +176,7 @@ function createPins(scene) {
         pins[i].position.y = pinYPosition;
         pins[i].material = pinMat;
         pins[i].physicsImpostor = new BABYLON.PhysicsImpostor(pins[i], BABYLON.PhysicsImpostor.CylinderImpostor, {
-            mass: 5,
+            mass: 7,
             friction: 0.5,
             restitution: 1
         }, scene);
@@ -207,7 +215,7 @@ function createAngleIndicator(scene) {
     // Tao indicator cho bien angle
 }
 
-function generateActionManager(scene) {
+function generateActionManager(scene, followCam) {
     const ball = scene.getMeshByName("ball");
     scene.actionManager = new BABYLON.ActionManager(scene);
     let w_roll = 0;
@@ -264,15 +272,11 @@ function generateActionManager(scene) {
                 const forceMagnitude = force;
                 const contactLocalRefPoint = BABYLON.Vector3.Zero();
                 ball.physicsImpostor.applyForce(forceDirection.scale(forceMagnitude), ball.getAbsolutePosition().add(contactLocalRefPoint));
-                const camera2 = new BABYLON.FollowCamera("FollowCam", new BABYLON.Vector3(0, 3, -5), scene);
-                camera2.radius = 1;
-                camera2.cameraAcceleration = 0.0;
-                camera2.attachControl(document.getElementById("renderCanvas"), true);
-                camera2.lockedTarget = ball;
-                scene.activeCamera = camera2;
+                followCam.lockedTarget = ball;
+                scene.activeCamera = followCam;
                 scene.registerAfterRender(function () {
                     if (ball.position.y < 0) {
-                        camera2.lockedTarget = null;
+                        followCam.lockedTarget = null;
                     }
                 });
             }
