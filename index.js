@@ -246,30 +246,36 @@ function createAngleIndicator(scene) {
 }
 
 function generateActionManager(canvas, scene, followCam) {
-    const ball = scene.getMeshByName("ball");
     scene.actionManager = new BABYLON.ActionManager(scene);
+    const ball = scene.getMeshByName("ball");
+
     let power = createForceIndicator(scene);
     let angleIndicator = createAngleIndicator(scene);
+    let framePassed = 0;
     let w_roll = 0;
     let w_force = 0;
     let w_angle = 0;
     let stopRolling = false;
     let stopModifyingAngle = false;
     let stopModifyingForce = false;
+    let stopGameCondition = false;
+    let alreadyShot = false;
     let shootAngle;
     let force;
-    let alreadyShot = false;
+    
     scene.registerBeforeRender(function () {
         if (!stopRolling) {
             ball.position.x = lanewidth / 2.5 * Math.cos(w_roll);
             ball.rotate(BABYLON.Axis.Z, lanewidth / 20 * Math.sin(w_roll), BABYLON.Space.WORLD);
             w_roll += 5 * Math.PI / 1000;
         }
+
         if (!stopModifyingForce) {
             force = 40 * Math.abs(Math.cos(w_force));
             power.position.y = force / 20 + 0.25;
             w_force += 5 * Math.PI / 1000;
         }
+
         if (!stopModifyingAngle) {
             shootAngle = (Math.PI / 4) * Math.cos(w_angle) + Math.PI / 2;
             angleIndicator.position.x = 1.5 + 0.5 * Math.cos(shootAngle);
@@ -277,6 +283,12 @@ function generateActionManager(canvas, scene, followCam) {
             angleIndicator.rotate(BABYLON.Axis.Z, Math.sin(w_angle) / 10, BABYLON.Space.WORLD);
             w_angle += 6 * Math.PI / 1000;
         }
+
+        // check coi khi nao game stop
+        framePassed += 1;
+        //stopGameCondition = alreadyShot & ball.position.x = ;
+        //if (stopGameCondition){
+        //}
     });
     scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(
         { trigger: BABYLON.ActionManager.OnKeyUpTrigger, parameter: "c" },
