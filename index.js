@@ -233,8 +233,7 @@ function createForceIndicator(scene) {
 function createAngleIndicator(scene) {
     const powerMat = new BABYLON.StandardMaterial("powerMat", scene);
     powerMat.diffuseTexture = new BABYLON.Texture("texture/power-texture.jpg", scene);
-    let angleIndicator = new BABYLON.Mesh.CreateBox("angleIndicator", 1, scene, false);
-    angleIndicator.scaling = new BABYLON.Vector3(0.05, 0.05, 0.05);
+    let angleIndicator = new BABYLON.Mesh.CreateSphere("ball", 12, 0.1, scene);
     angleIndicator.position.x = 2;
     angleIndicator.position.y = 0.025;
     angleIndicator.position.z = -3.867;
@@ -261,19 +260,19 @@ function generateActionManager(canvas, scene, followCam) {
         if (!stopRolling) {
             ball.position.x = lanewidth / 2.5 * Math.cos(w_roll);
             ball.rotate(BABYLON.Axis.Z, lanewidth / 20 * Math.sin(w_roll), BABYLON.Space.WORLD);
-            w_roll += 0.02;
+            w_roll += 5 * Math.PI / 1000;
         }
         if (!stopModifyingForce) {
             force = 35 * Math.abs(Math.cos(w_force));
             power.position.y = force / 20 + 0.25;
-            w_force += 0.01;
+            w_force += 5 * Math.PI / 1000;
         }
         if (!stopModifyingAngle) {
             shootAngle = (Math.PI / 4) * Math.cos(w_angle) + Math.PI / 2;
             angleIndicator.position.x = 2 + 0.5 * Math.cos(shootAngle);
             angleIndicator.position.y = 0.5 * Math.sin(shootAngle) - 0.1;
-
-            w_angle += 0.01;
+            angleIndicator.rotate(BABYLON.Axis.Z, Math.sin(w_angle) / 10, BABYLON.Space.WORLD);
+            w_angle += 6 * Math.PI / 1000;
         }
     });
     scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(
