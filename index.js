@@ -231,6 +231,7 @@ function createForceIndicator(scene) {
 function createAngleIndicator(scene) {
     const powerMat = new BABYLON.StandardMaterial("powerMat", scene);
     powerMat.diffuseTexture = new BABYLON.Texture("texture/power-texture.jpg", scene);
+    
     let angleIndicator = new BABYLON.Mesh.CreateSphere("angleIndicator", 12, 0.1, scene);
     angleIndicator.position.x = 2.5;
     angleIndicator.position.y = 0.025;
@@ -248,10 +249,9 @@ function createAngleIndicator(scene) {
 function generateActionManager(canvas, scene, followCam) {
     scene.actionManager = new BABYLON.ActionManager(scene);
     const ball = scene.getMeshByName("ball");
-
+    const pin1 = scene.getMeshByName("pin1");
     let power = createForceIndicator(scene);
     let angleIndicator = createAngleIndicator(scene);
-    let framePassed = 0;
     let w_roll = 0;
     let w_force = 0;
     let w_angle = 0;
@@ -262,8 +262,17 @@ function generateActionManager(canvas, scene, followCam) {
     let alreadyShot = false;
     let shootAngle;
     let force;
-    
+    let position_x_before;
+    let position_y_before;
+    let position_z_before;
+
     scene.registerBeforeRender(function () {
+        position_x_before = ball.position.x;
+        position_y_before = ball.position.y;
+        position_z_before = ball.position.z;
+    })
+
+    scene.registerAfterRender(function () {
         if (!stopRolling) {
             ball.position.x = lanewidth / 2.5 * Math.cos(w_roll);
             ball.rotate(BABYLON.Axis.Z, lanewidth / 20 * Math.sin(w_roll), BABYLON.Space.WORLD);
@@ -284,12 +293,18 @@ function generateActionManager(canvas, scene, followCam) {
             w_angle += 6 * Math.PI / 1000;
         }
 
-        // check coi khi nao game stop
-        framePassed += 1;
-        //stopGameCondition = alreadyShot & ball.position.x = ;
-        //if (stopGameCondition){
-        //}
+        // Check game over
+        let stopGameCondition =
+            alreadyShot &&
+            ((Math.abs(ball.position.x) >= 0.61 && Math.abs(ball.position.x) <= 0.64 && ball.position.z < pin1.position.z)
+                || (ball.position.y < 0)
+                || (ball.position.x == position_x_before && ball.position.y == position_y_before && ball.position.z == position_z_before)
+            );
+        if (stopGameCondition) {
+            // Show game over notification and show the score
+        }
     });
+
     scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(
         { trigger: BABYLON.ActionManager.OnKeyUpTrigger, parameter: "c" },
         function () {
