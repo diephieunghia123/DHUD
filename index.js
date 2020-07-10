@@ -73,7 +73,7 @@ function createUniversalCamera(scene) {
 }
 
 function createFollowCam(scene, canvas) {
-    const followCam = new BABYLON.FollowCamera("FollowCam", new BABYLON.Vector3(0, 3, -4), scene);
+    const followCam = new BABYLON.FollowCamera("FollowCam", new BABYLON.Vector3(0, 3, -5), scene);
     followCam.radius = 1;
     followCam.cameraAcceleration = 0;
     return followCam
@@ -213,29 +213,32 @@ function createPins(scene) {
 function createForceIndicator(scene) {
     const powerMat = new BABYLON.StandardMaterial("powerMat", scene);
     powerMat.diffuseTexture = new BABYLON.Texture("texture/power-texture.jpg", scene);
+
     let power = new BABYLON.Mesh.CreateBox("power", 1, scene, false);
     power.scaling = new BABYLON.Vector3(0.05, 0.02, 0.01);
     power.position.x = -2;
     power.position.z = -lanelength / 2 + 0.6;
     power.material = powerMat;
-    const backMat = new BABYLON.StandardMaterial("backMat", scene);
-    backMat.diffuseTexture = new BABYLON.Texture("texture/back_planebox-texture.png", scene);
-    backMat.alpha = 0.6;
+
     let backPlaneBox = new BABYLON.Mesh.CreateBox("backPlaneBox", 1, scene, false);
-    backPlaneBox.scaling = new BABYLON.Vector3(0.1, 2, 0.01);
-    backPlaneBox.position.y = 1.25;
+    backPlaneBox.scaling = new BABYLON.Vector3(0.1, 2.01, 0.01);
+    backPlaneBox.position.y = 1.255;
     backPlaneBox.position.x = -2;
     backPlaneBox.position.z = -3.867;
-    backPlaneBox.material = backMat;
     return power;
 }
 
 function createAngleIndicator(scene) {
     const powerMat = new BABYLON.StandardMaterial("powerMat", scene);
     powerMat.diffuseTexture = new BABYLON.Texture("texture/power-texture.jpg", scene);
-    let angleIndicator = new BABYLON.Mesh.CreateSphere("ball", 12, 0.1, scene);
+    let angleIndicator = new BABYLON.Mesh.CreateSphere("angleIndicator", 12, 0.1, scene);
     angleIndicator.position.x = 2;
     angleIndicator.position.y = 0.025;
+    let backPlaneBox2 = new BABYLON.Mesh.CreateBox("backPlaneBox2", 1, scene, false);
+    backPlaneBox2.scaling = new BABYLON.Vector3(1, 1, 0.01);
+    backPlaneBox2.position.y = 1.5;
+    backPlaneBox2.position.x = 1.1;
+    backPlaneBox2.position.z = -3.500;
     angleIndicator.position.z = -3.867;
     angleIndicator.material = powerMat;
     return angleIndicator;
@@ -243,7 +246,6 @@ function createAngleIndicator(scene) {
 
 function generateActionManager(canvas, scene, followCam) {
     const ball = scene.getMeshByName("ball");
-    const pin1 = scene.getMeshByName("pin1");
     scene.actionManager = new BABYLON.ActionManager(scene);
     let power = createForceIndicator(scene);
     let angleIndicator = createAngleIndicator(scene);
@@ -269,8 +271,8 @@ function generateActionManager(canvas, scene, followCam) {
         }
         if (!stopModifyingAngle) {
             shootAngle = (Math.PI / 4) * Math.cos(w_angle) + Math.PI / 2;
-            angleIndicator.position.x = 2 + 0.5 * Math.cos(shootAngle);
-            angleIndicator.position.y = 0.5 * Math.sin(shootAngle) - 0.1;
+            angleIndicator.position.x = 1 + 0.5 * Math.cos(shootAngle);
+            angleIndicator.position.y = 2 * Math.sin(shootAngle) - 0.1;
             angleIndicator.rotate(BABYLON.Axis.Z, Math.sin(w_angle) / 10, BABYLON.Space.WORLD);
             w_angle += 6 * Math.PI / 1000;
         }
@@ -310,7 +312,7 @@ function generateActionManager(canvas, scene, followCam) {
                 scene.activeCamera = followCam;
                 scene.registerAfterRender(function () {
                     if (ball.position.y < 0) {
-                        followCam.lockedTarget = pin1;
+                        followCam.lockedTarget = null;
                     }
                 });
             }
