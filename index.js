@@ -266,7 +266,7 @@ function generateActionManager(canvas, scene, followCam) {
             w_roll += 5 * Math.PI / 1000;
         }
         if (!stopModifyingForce) {
-            force = 35 * Math.abs(Math.cos(w_force));
+            force = 40 * Math.abs(Math.cos(w_force));
             power.position.y = force / 20 + 0.25;
             w_force += 5 * Math.PI / 1000;
         }
