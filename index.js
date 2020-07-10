@@ -232,15 +232,16 @@ function createAngleIndicator(scene) {
     const powerMat = new BABYLON.StandardMaterial("powerMat", scene);
     powerMat.diffuseTexture = new BABYLON.Texture("texture/power-texture.jpg", scene);
     let angleIndicator = new BABYLON.Mesh.CreateSphere("angleIndicator", 12, 0.1, scene);
-    angleIndicator.position.x = 2;
+    angleIndicator.position.x = 2.5;
     angleIndicator.position.y = 0.025;
+    angleIndicator.position.z = -3.867;
+    angleIndicator.material = powerMat;
+    
     let backPlaneBox2 = new BABYLON.Mesh.CreateBox("backPlaneBox2", 1, scene, false);
     backPlaneBox2.scaling = new BABYLON.Vector3(1, 1, 0.01);
     backPlaneBox2.position.y = 1.5;
-    backPlaneBox2.position.x = 1.1;
+    backPlaneBox2.position.x = 1.6;
     backPlaneBox2.position.z = -3.500;
-    angleIndicator.position.z = -3.867;
-    angleIndicator.material = powerMat;
     return angleIndicator;
 }
 
@@ -271,7 +272,7 @@ function generateActionManager(canvas, scene, followCam) {
         }
         if (!stopModifyingAngle) {
             shootAngle = (Math.PI / 4) * Math.cos(w_angle) + Math.PI / 2;
-            angleIndicator.position.x = 1 + 0.5 * Math.cos(shootAngle);
+            angleIndicator.position.x = 1.5 + 0.5 * Math.cos(shootAngle);
             angleIndicator.position.y = 2 * Math.sin(shootAngle) - 0.1;
             angleIndicator.rotate(BABYLON.Axis.Z, Math.sin(w_angle) / 10, BABYLON.Space.WORLD);
             w_angle += 6 * Math.PI / 1000;
