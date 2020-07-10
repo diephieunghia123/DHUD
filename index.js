@@ -212,16 +212,18 @@ function createPins(scene) {
 
 function createForceIndicator(scene) {
     const powerMat = new BABYLON.StandardMaterial("powerMat", scene);
-    powerMat.diffuseTexture = new BABYLON.Texture("texture/power-texture.jpg", scene);
-
+    powerMat.diffuseTexture = new BABYLON.Texture("texture/grass2.jpg", scene);
     let power = new BABYLON.Mesh.CreateBox("power", 1, scene, false);
-    power.scaling = new BABYLON.Vector3(0.05, 0.02, 0.01);
+    power.scaling = new BABYLON.Vector3(0.06, 0.03, 0.02);
     power.position.x = -2;
     power.position.z = -lanelength / 2 + 0.6;
     power.material = powerMat;
 
+    const backpowerMat = new BABYLON.StandardMaterial("backpowerMat", scene);
+    backpowerMat.diffuseTexture = new BABYLON.Texture("texture/power-texture.jpg", scene);
     let backPlaneBox = new BABYLON.Mesh.CreateBox("backPlaneBox", 1, scene, false);
     backPlaneBox.scaling = new BABYLON.Vector3(0.1, 2.01, 0.01);
+    backPlaneBox.material = backpowerMat;
     backPlaneBox.position.y = 1.255;
     backPlaneBox.position.x = -2;
     backPlaneBox.position.z = -3.867;
@@ -238,11 +240,13 @@ function createAngleIndicator(scene) {
     angleIndicator.position.z = -3.867;
     angleIndicator.material = powerMat;
 
-    let backPlaneBox2 = new BABYLON.Mesh.CreateBox("backPlaneBox2", 1, scene, false);
-    backPlaneBox2.scaling = new BABYLON.Vector3(1, 1, 0.01);
-    backPlaneBox2.position.y = 1.5;
-    backPlaneBox2.position.x = 1.6;
-    backPlaneBox2.position.z = -3.500;
+    const discMat = new BABYLON.StandardMaterial("discMat", scene);
+    discMat.diffuseTexture = new BABYLON.Texture("texture/angle-texture.png", scene);
+    var disc = BABYLON.MeshBuilder.CreateDisc("disc", {radius: 0.7, arc: 0.5, tessellation: 64, sideOrientation: BABYLON.Mesh.DOUBLESIDE}, scene);
+    disc.position.x = 1.6;
+    disc.position.y = 1.2;
+    disc.position.z = -3.5;
+    disc.material = discMat;
     return angleIndicator;
 }
 
