@@ -236,7 +236,7 @@ function createAngleIndicator(scene) {
     angleIndicator.position.y = 0.025;
     angleIndicator.position.z = -3.867;
     angleIndicator.material = powerMat;
-    
+
     let backPlaneBox2 = new BABYLON.Mesh.CreateBox("backPlaneBox2", 1, scene, false);
     backPlaneBox2.scaling = new BABYLON.Vector3(1, 1, 0.01);
     backPlaneBox2.position.y = 1.5;
