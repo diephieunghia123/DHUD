@@ -299,7 +299,7 @@ function generateActionManager(canvas, scene, followCam, pins) {
         gameOver =
             alreadyShot &&
             ((Math.abs(ball.position.x) >= 0.61 && ball.position.z < pin1.position.z && ball.position.y <= 0.11)
-                || (ball.position.y < 0)
+                || (ball.position.y < -15)
                 || (ballVelocity.lengthSquared() < 0.01)
             );
         if (gameOver) {
