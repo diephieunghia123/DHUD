@@ -305,7 +305,7 @@ function generateActionManager(canvas, scene, followCam, pins) {
         if (gameOver) {
             score = 0;
             for (var i = 0; i < 10; i++) {
-                if (pins[i].position.y < pinYPosition - 0.02) {
+                if (pins[i].position.y < pinYPosition - 0.01) {
                     score += 1;
                 }
             }
