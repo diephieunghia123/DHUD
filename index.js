@@ -297,7 +297,7 @@ function generateActionManager(canvas, scene, followCam) {
         let ballVelocity = ball.physicsImpostor.getLinearVelocity();
         let stopGameCondition =
             alreadyShot &&
-            ((Math.abs(ball.position.x) >= 0.61 && Math.abs(ball.position.x) <= 0.64 && ball.position.z < pin1.position.z)
+            ((Math.abs(ball.position.x) >= 0.61 && ball.position.z < pin1.position.z)
                 || (ball.position.y < 0)
                 || (ballVelocity.lengthSquared() < 0.01)
             );
