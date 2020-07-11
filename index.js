@@ -267,7 +267,7 @@ function generateActionManager(canvas, scene, followCam) {
     let stopRolling = false;
     let stopModifyingAngle = false;
     let stopModifyingForce = false;
-    let stopGameCondition = false;
+    let gameOver = false;
     let alreadyShot = false;
     let shootAngle;
     let force;
@@ -295,13 +295,13 @@ function generateActionManager(canvas, scene, followCam) {
 
         // Check game over
         let ballVelocity = ball.physicsImpostor.getLinearVelocity();
-        let stopGameCondition =
+        gameOver =
             alreadyShot &&
             ((Math.abs(ball.position.x) >= 0.61 && ball.position.z < pin1.position.z)
                 || (ball.position.y < 0)
                 || (ballVelocity.lengthSquared() < 0.01)
             );
-        if (stopGameCondition) {
+        if (gameOver) {
             window.alert("Game over!");
         }
     });
