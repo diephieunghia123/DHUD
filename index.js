@@ -65,7 +65,7 @@ function createScene(engine) {
     scene.enablePhysics(new BABYLON.Vector3(0, -9.81, 0), physEngine);
     physEngine.setTimeStep(1 / 60);
     scene.collisionsEnabled = true;
-    //scene.debugLayer.show();
+    scene.debugLayer.show();
     return scene;
 }
 
@@ -298,13 +298,13 @@ function generateActionManager(canvas, scene, followCam, pins) {
         let ballVelocity = ball.physicsImpostor.getLinearVelocity();
         gameOver =
             alreadyShot &&
-            ((Math.abs(ball.position.x) >= 0.61 && ball.position.z < pin1.position.z)
+            ((Math.abs(ball.position.x) >= 0.61 && ball.position.z < pin1.position.z && ball.position.y <= 0.11)
                 || (ball.position.y < 0)
                 || (ballVelocity.lengthSquared() < 0.01)
             );
         if (gameOver) {
             for (var i = 0; i < 10; i++) {
-                if (pins[i].position.y < pinYPosition) {
+                if (pins[i].position.y < pinYPosition - 0.02) {
                     score += 1;
                 }
             }
