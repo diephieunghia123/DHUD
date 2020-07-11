@@ -247,7 +247,7 @@ function createAngleIndicator(scene) {
 
     const discMat = new BABYLON.StandardMaterial("discMat", scene);
     discMat.diffuseTexture = new BABYLON.Texture("texture/angle-texture.png", scene);
-    var disc = BABYLON.MeshBuilder.CreateDisc("disc", {radius: 0.7, arc: 0.5, tessellation: 64, sideOrientation: BABYLON.Mesh.DOUBLESIDE}, scene);
+    var disc = BABYLON.MeshBuilder.CreateDisc("disc", { radius: 0.7, arc: 0.5, tessellation: 100, sideOrientation: BABYLON.Mesh.DOUBLESIDE }, scene);
     disc.position.x = 1.6;
     disc.position.y = 1.2;
     disc.position.z = -3.5;
@@ -271,15 +271,6 @@ function generateActionManager(canvas, scene, followCam) {
     let alreadyShot = false;
     let shootAngle;
     let force;
-    let position_x_before;
-    let position_y_before;
-    let position_z_before;
-
-    scene.registerBeforeRender(function () {
-        position_x_before = ball.position.x;
-        position_y_before = ball.position.y;
-        position_z_before = ball.position.z;
-    })
 
     scene.registerAfterRender(function () {
         if (!stopRolling) {
@@ -296,22 +287,23 @@ function generateActionManager(canvas, scene, followCam) {
 
         if (!stopModifyingAngle) {
             shootAngle = (Math.PI / 4) * Math.cos(w_angle) + Math.PI / 2;
-            angleIndicator.position.x = 1.5 + 0.5 * Math.cos(shootAngle);
-            angleIndicator.position.y = 2 * Math.sin(shootAngle) - 0.1;
+            angleIndicator.position.x = 1.46 + 0.5 * Math.cos(shootAngle);
+            angleIndicator.position.y = 0.5 * Math.sin(shootAngle) + 1.3;
             angleIndicator.rotate(BABYLON.Axis.Z, Math.sin(w_angle) / 10, BABYLON.Space.WORLD);
             w_angle += 6 * Math.PI / 1000;
         }
 
         // Check game over
+        let ballVelocity = ball.physicsImpostor.getLinearVelocity();
         let stopGameCondition =
             alreadyShot &&
             ((Math.abs(ball.position.x) >= 0.61 && Math.abs(ball.position.x) <= 0.64 && ball.position.z < pin1.position.z)
                 || (ball.position.y < 0)
-                //|| (Math.abs(ball.position.x - position_x_before) <0.2 && Math.abs(ball.position.y - position_y_before) <0.2 && Math.abs(ball.position.z - position_z_before) <0.2)
+                || (ballVelocity.lengthSquared() < 0.01)
             );
-        //if (stopGameCondition) {
-        //window.alert("Game over!");
-        //}
+        if (stopGameCondition) {
+            window.alert("Game over!");
+        }
     });
 
     scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(
@@ -341,7 +333,7 @@ function generateActionManager(canvas, scene, followCam) {
                 stopModifyingForce = true;
                 alreadyShot = true;
                 const forceDirection = new BABYLON.Vector3(100 * Math.cos(shootAngle), 5, 100 * Math.sin(shootAngle));
-                const forceMagnitude = force;
+                const forceMagnitude = force * 1.3;
                 const contactLocalRefPoint = BABYLON.Vector3.Zero();
                 ball.physicsImpostor.applyForce(forceDirection.scale(forceMagnitude), ball.getAbsolutePosition().add(contactLocalRefPoint));
                 followCam.lockedTarget = ball;
