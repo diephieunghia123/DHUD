@@ -247,7 +247,12 @@ function createAngleIndicator(scene) {
 
     const discMat = new BABYLON.StandardMaterial("discMat", scene);
     discMat.diffuseTexture = new BABYLON.Texture("texture/angle-texture.png", scene);
-    var disc = BABYLON.MeshBuilder.CreateDisc("disc", { radius: 0.7, arc: 0.5, tessellation: 100, sideOrientation: BABYLON.Mesh.DOUBLESIDE }, scene);
+    const disc = BABYLON.MeshBuilder.CreateDisc("disc", {
+        radius: 0.7,
+        arc: 0.5,
+        tessellation: 100,
+        sideOrientation: BABYLON.Mesh.DOUBLESIDE
+    }, scene);
     disc.position.x = 1.6;
     disc.position.y = 1.2;
     disc.position.z = -3.5;
@@ -299,10 +304,10 @@ function generateActionManager(canvas, scene, followCam, pins) {
         let ballVelocity = ball.physicsImpostor.getLinearVelocity();
         gameOver =
             alreadyShot && (!endgame) &&
-            ((Math.abs(ball.position.x) >= 0.61 && ball.position.z < pin1.position.z && ball.position.y <= 0.11) || (ball.position.y < -15) || (ballVelocity.length() < 0.01));
+            ((Math.abs(ball.position.x) >= 0.61 && ball.position.z < pin1.position.z && ball.position.y <= 0.11) || (ball.position.y < -20) || (ballVelocity.length() < 0.01));
         if (gameOver) {
             score = 0;
-            for (var i = 0; i < 10; i++) {
+            for (let i = 0; i < 10; i++) {
                 if (pins[i].position.y < pinYPosition - 0.02) {
                     score += 1;
                 }
