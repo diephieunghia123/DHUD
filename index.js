@@ -314,6 +314,7 @@ function generateActionManager(canvas, scene, followCam, pins) {
             }
             window.alert("Game over! Your score is: " + score);
             endgame = true;
+            location.reload();
         }
     });
 
