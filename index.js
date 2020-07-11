@@ -271,7 +271,7 @@ function generateActionManager(canvas, scene, followCam, pins) {
     let alreadyShot = false;
     let shootAngle;
     let force;
-    let score = 0;
+    let score;
 
     scene.registerAfterRender(function () {
         if (!stopRolling) {
