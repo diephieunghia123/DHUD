@@ -41,7 +41,11 @@ let hideLoadingScreen = function (engine) {
 };
 
 function initEngine(canvas) {
-    const engine = new BABYLON.Engine(canvas, true);
+    delete engine;
+    engine = new BABYLON.Engine(canvas, true, {
+        deterministicLockstep: true,
+        lockstepMaxSteps: 4
+    });
     showLoadingScreen(canvas, engine);
     window.addEventListener("resize", function () {
         engine.resize();
@@ -57,10 +61,11 @@ function createScene(engine) {
             hideLoadingScreen(engine);
         }
     });
-    scene.enablePhysics();
+    let physEngine = new BABYLON.CannonJSPlugin(false);
+    scene.enablePhysics(new BABYLON.Vector3(0, -9.81, 0), physEngine);
+    physEngine.setTimeStep(1 / 60);
     scene.collisionsEnabled = true;
-    scene.gravity = new BABYLON.Vector3(0, -0.9, 0);
-    scene.debugLayer.show();
+    //scene.debugLayer.show();
     return scene;
 }
 
@@ -129,7 +134,7 @@ function createLane(scene) {
     lane.position.y = laneheight / 2;
     lane.physicsImpostor = new BABYLON.PhysicsImpostor(lane, BABYLON.PhysicsImpostor.BoxImpostor, {
         mass: 0,
-        friction: 1,
+        friction: 0.5,
         restitution: 0
     }, scene);
     lane.checkCollisions = true;
@@ -231,7 +236,7 @@ function createForceIndicator(scene) {
 function createAngleIndicator(scene) {
     const powerMat = new BABYLON.StandardMaterial("powerMat", scene);
     powerMat.diffuseTexture = new BABYLON.Texture("texture/power-texture.jpg", scene);
-    
+
     let angleIndicator = new BABYLON.Mesh.CreateSphere("angleIndicator", 12, 0.1, scene);
     angleIndicator.position.x = 2.5;
     angleIndicator.position.y = 0.025;
@@ -298,11 +303,11 @@ function generateActionManager(canvas, scene, followCam) {
             alreadyShot &&
             ((Math.abs(ball.position.x) >= 0.61 && Math.abs(ball.position.x) <= 0.64 && ball.position.z < pin1.position.z)
                 || (ball.position.y < 0)
-                || (ball.position.x == position_x_before && ball.position.y == position_y_before && ball.position.z == position_z_before)
+                //|| (Math.abs(ball.position.x - position_x_before) <0.2 && Math.abs(ball.position.y - position_y_before) <0.2 && Math.abs(ball.position.z - position_z_before) <0.2)
             );
-        if (stopGameCondition) {
-            // Show game over notification and show the score
-        }
+        //if (stopGameCondition) {
+        //window.alert("Game over!");
+        //}
     });
 
     scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(
@@ -331,7 +336,7 @@ function generateActionManager(canvas, scene, followCam) {
                 stopModifyingAngle = true;
                 stopModifyingForce = true;
                 alreadyShot = true;
-                const forceDirection = new BABYLON.Vector3(100 * Math.cos(shootAngle), 50, 100 * Math.sin(shootAngle));
+                const forceDirection = new BABYLON.Vector3(100 * Math.cos(shootAngle), 5, 100 * Math.sin(shootAngle));
                 const forceMagnitude = force;
                 const contactLocalRefPoint = BABYLON.Vector3.Zero();
                 ball.physicsImpostor.applyForce(forceDirection.scale(forceMagnitude), ball.getAbsolutePosition().add(contactLocalRefPoint));
