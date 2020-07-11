@@ -272,6 +272,7 @@ function generateActionManager(canvas, scene, followCam, pins) {
     let shootAngle;
     let force;
     let score;
+    let endgame = false;
 
     scene.registerAfterRender(function () {
         if (!stopRolling) {
@@ -297,19 +298,20 @@ function generateActionManager(canvas, scene, followCam, pins) {
         // Check game over
         let ballVelocity = ball.physicsImpostor.getLinearVelocity();
         gameOver =
-            alreadyShot &&
-            ((Math.abs(ball.position.x) >= 0.61 && ball.position.z < pin1.position.z && ball.position.y <= 0.11)
-                || (ball.position.y < -15)
+            alreadyShot && (!endgame) &&
+            ((ball.position.z < pin1.position.z && ball.position.y <= -1)
+                || (ball.position.y < -1)
                 || (ballVelocity.lengthSquared() < 0.01)
             );
         if (gameOver) {
             score = 0;
             for (var i = 0; i < 10; i++) {
-                if (pins[i].position.y < pinYPosition - 0.01) {
+                if (pins[i].position.y < pinYPosition - 0.02) {
                     score += 1;
                 }
             }
             window.alert("Game over! Your score is: " + score);
+            endgame = true;
         }
     });
 
