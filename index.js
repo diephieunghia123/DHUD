@@ -24,9 +24,9 @@ function init() {
         const gutter1 = createGutter(scene);
         const gutter2 = createGutter(scene);
         gutter2.position.x = -(0.35 + lanewidth / 2);
-        const pin = createPins(scene);
+        const pins = createPins(scene);
         const ball = createBall(scene);
-        generateActionManager(canvas, scene, followCam);
+        generateActionManager(canvas, scene, followCam, pins);
     }
 }
 
@@ -255,7 +255,7 @@ function createAngleIndicator(scene) {
     return angleIndicator;
 }
 
-function generateActionManager(canvas, scene, followCam) {
+function generateActionManager(canvas, scene, followCam, pins) {
     scene.actionManager = new BABYLON.ActionManager(scene);
     const ball = scene.getMeshByName("ball");
     const pin1 = scene.getMeshByName("pin1");
@@ -271,6 +271,7 @@ function generateActionManager(canvas, scene, followCam) {
     let alreadyShot = false;
     let shootAngle;
     let force;
+    let score = 0;
 
     scene.registerAfterRender(function () {
         if (!stopRolling) {
@@ -302,7 +303,12 @@ function generateActionManager(canvas, scene, followCam) {
                 || (ballVelocity.lengthSquared() < 0.01)
             );
         if (gameOver) {
-            window.alert("Game over!");
+            for (var i = 0; i < 10; i++) {
+                if (pins[i].position.y < pinYPosition) {
+                    score += 1;
+                }
+            }
+            window.alert("Game over! Your score is: " + score);
         }
     });
 
