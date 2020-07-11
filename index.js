@@ -299,10 +299,7 @@ function generateActionManager(canvas, scene, followCam, pins) {
         let ballVelocity = ball.physicsImpostor.getLinearVelocity();
         gameOver =
             alreadyShot && (!endgame) &&
-            ((ball.position.z < pin1.position.z && ball.position.y <= -1)
-                || (ball.position.y < -1)
-                || (ballVelocity.lengthSquared() < 0.01)
-            );
+            ((Math.abs(ball.position.x) >= 0.61 && ball.position.z < pin1.position.z && ball.position.y <= 0.11) || (ball.position.y < -15) || (ballVelocity.length() < 0.01));
         if (gameOver) {
             score = 0;
             for (var i = 0; i < 10; i++) {
