@@ -71,8 +71,7 @@ function createScene(engine) {
 
 function createUniversalCamera(scene) {
     const camera = new BABYLON.UniversalCamera("cam", new BABYLON.Vector3(0, 1.5, -8), scene);
-    camera.speed = 0.8;
-    camera.inertia = 0.4;
+    camera.speed = 0.3;
     camera.checkCollisions = true;
     return camera;
 }
