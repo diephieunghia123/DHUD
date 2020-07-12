@@ -180,13 +180,13 @@ function createPins(scene) {
     const pinMat = new BABYLON.StandardMaterial("pinMat", scene);
     pinMat.diffuseTexture = new BABYLON.Texture("texture/pin-texture.png", scene);
     for (i = 0; i < length; i++) {
-        pins[i] = new BABYLON.Mesh.CreateCylinder("pin" + (i + 1), pinHeight, pinDiameter / 2, pinDiameter, 16, scene);
+        pins[i] = new BABYLON.Mesh.CreateCylinder("pin" + (i + 1), pinHeight, pinDiameter / 2, pinDiameter, 100, scene);
         pins[i].position.y = pinYPosition;
         pins[i].material = pinMat;
         pins[i].physicsImpostor = new BABYLON.PhysicsImpostor(pins[i], BABYLON.PhysicsImpostor.CylinderImpostor, {
             mass: 0.5,
             friction: 0.5,
-            restitution: 0
+            restitution: 1
         }, scene);
         pins[i].checkCollisions = true;
     }
@@ -304,7 +304,9 @@ function generateActionManager(canvas, scene, followCam, pins) {
         let ballVelocity = ball.physicsImpostor.getLinearVelocity();
         gameOver =
             alreadyShot && (!endgame) &&
-            ((Math.abs(ball.position.x) >= 0.61 && ball.position.z < pin1.position.z && ball.position.y <= 0.11) || (ball.position.y < -20) || (ballVelocity.length() < 0.01));
+            ((Math.abs(ball.position.x) >= 0.61 && ball.position.z < pin1.position.z && ball.position.y <= 0.11)
+                || (ball.position.y < -20)
+                || (ballVelocity.length() < 0.01));
         if (gameOver) {
             score = 0;
             for (let i = 0; i < 10; i++) {
