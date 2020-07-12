@@ -60,9 +60,7 @@ function createScene(engine) {
             hideLoadingScreen(engine);
         }
     });
-    let physEngine = new BABYLON.CannonJSPlugin(false);
-    scene.enablePhysics(new BABYLON.Vector3(0, -9.81, 0), physEngine);
-    physEngine.setTimeStep(1 / 60);
+    scene.enablePhysics();
     scene.collisionsEnabled = true;
     //scene.debugLayer.show();
     return scene;
