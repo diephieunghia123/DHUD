@@ -1,4 +1,4 @@
-﻿const laneheight = 0.2;
+﻿﻿const laneheight = 0.2;
 const lanewidth = 1;
 const lanelength = 9;
 
@@ -10,6 +10,7 @@ const pinYPosition = pinHeight / 2 + laneheight;
 
 function init() {
     if (BABYLON.Engine.isSupported()) {
+        // Init Items
         const canvas = document.getElementById("renderCanvas");
         const engine = initEngine(canvas);
         const scene = createScene(engine);
@@ -17,15 +18,20 @@ function init() {
         camera.attachControl(canvas, true);
         scene.activeCamera = camera;
         const followCam = createFollowCam(scene);
+        // Background
         const light = createLight(scene);
         const ground = createGround(scene);
         const sky = createSky(scene);
         const lane = createLane(scene);
+        // 2 Walls
         const gutter1 = createGutter(scene);
         const gutter2 = createGutter(scene);
         gutter2.position.x = -(0.35 + lanewidth / 2);
+        // 10 Pins and Ball
         const pins = createPins(scene);
         const ball = createBall(scene);
+        
+        // Start Acting
         generateActionManager(canvas, scene, followCam, pins);
     }
 }
@@ -216,7 +222,7 @@ function createForceIndicator(scene) {
     powerMat.diffuseTexture = new BABYLON.Texture("texture/grass2.jpg", scene);
     let power = new BABYLON.Mesh.CreateBox("power", 1, scene, false);
     power.scaling = new BABYLON.Vector3(0.06, 0.03, 0.02);
-    power.position.x = -2;
+    power.position.x = -1.5;
     power.position.z = -lanelength / 2 + 0.6;
     power.material = powerMat;
 
@@ -225,28 +231,28 @@ function createForceIndicator(scene) {
     let backPlaneBox = new BABYLON.Mesh.CreateBox("backPlaneBox", 1, scene, false);
     backPlaneBox.scaling = new BABYLON.Vector3(0.1, 2.01, 0.01);
     backPlaneBox.material = backpowerMat;
+    backPlaneBox.position.x = -1.5;
     backPlaneBox.position.y = 1.255;
-    backPlaneBox.position.x = -2;
     backPlaneBox.position.z = -3.867;
     return power;
 }
 
 function createAngleIndicator(scene) {
-    const powerMat = new BABYLON.StandardMaterial("powerMat", scene);
-    powerMat.diffuseTexture = new BABYLON.Texture("texture/power-texture.jpg", scene);
+    const angleMat = new BABYLON.StandardMaterial("powerMat", scene);
+    angleMat.diffuseTexture = new BABYLON.Texture("texture/power-texture.png", scene);
 
     let angleIndicator = new BABYLON.Mesh.CreateSphere("angleIndicator", 12, 0.1, scene);
     angleIndicator.position.x = 2.5;
     angleIndicator.position.y = 0.025;
     angleIndicator.position.z = -3.867;
-    angleIndicator.material = powerMat;
+    angleIndicator.material = angleMat;
 
     const discMat = new BABYLON.StandardMaterial("discMat", scene);
-    discMat.diffuseTexture = new BABYLON.Texture("texture/angle-texture.png", scene);
+    discMat.diffuseTexture = new BABYLON.Texture("texture/angle2-texture.png", scene);
     const disc = BABYLON.MeshBuilder.CreateDisc("disc", {
-        radius: 0.7,
+        radius: 0.8,
         arc: 0.5,
-        tessellation: 100,
+        tessellation: 1000,
         sideOrientation: BABYLON.Mesh.DOUBLESIDE
     }, scene);
     disc.position.x = 1.6;
@@ -274,6 +280,7 @@ function generateActionManager(canvas, scene, followCam, pins) {
     let force;
     let score;
     let endgame = false;
+    // window.alert("Press Z to play again!\nPress X to play again!\nPress C to play again!");
 
     scene.registerAfterRender(function () {
         if (!stopRolling) {
@@ -300,9 +307,9 @@ function generateActionManager(canvas, scene, followCam, pins) {
         let ballVelocity = ball.physicsImpostor.getLinearVelocity();
         gameOver =
             alreadyShot && (!endgame) &&
-            ((Math.abs(ball.position.x) >= 0.61 && ball.position.z < pin1.position.z && ball.position.y <= 0.11)
+            ((ball.position.z < pin1.position.z && ball.position.y <= 0.11)
                 || (ball.position.y < -20)
-                || (ballVelocity.length() < 0.01));
+                || (ballVelocity.length() < 0.15));
         if (gameOver) {
             score = 0;
             for (let i = 0; i < 10; i++) {
@@ -310,26 +317,25 @@ function generateActionManager(canvas, scene, followCam, pins) {
                     score += 1;
                 }
             }
-            window.alert("Game over! Your score is: " + score);
+            window.alert("Your score is: " + score + "\nPress R to play again!");
             endgame = true;
-            location.reload();
         }
     });
 
     scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(
-        { trigger: BABYLON.ActionManager.OnKeyUpTrigger, parameter: "c" },
+        { trigger: BABYLON.ActionManager.OnKeyUpTrigger, parameter: "x" },
         function () {
             if (!alreadyShot) { stopRolling = !stopRolling; }
         }))
 
     scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(
-        { trigger: BABYLON.ActionManager.OnKeyUpTrigger, parameter: "x" },
+        { trigger: BABYLON.ActionManager.OnKeyUpTrigger, parameter: "z" },
         function () {
-            if (!alreadyShot) { stopModifyingForce = !stopModifyingForce; }
+            if (!alreadyShot) { stopModifyingForce = !stopModifyingForce; } 
         }))
 
     scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(
-        { trigger: BABYLON.ActionManager.OnKeyUpTrigger, parameter: "z" },
+        { trigger: BABYLON.ActionManager.OnKeyUpTrigger, parameter: "c" },
         function () {
             if (!alreadyShot) { stopModifyingAngle = !stopModifyingAngle; }
         }))
@@ -356,4 +362,12 @@ function generateActionManager(canvas, scene, followCam, pins) {
                 });
             }
         }))
+    
+        scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(
+            { trigger: BABYLON.ActionManager.OnKeyUpTrigger, parameter: "r" },
+            function () {
+                if (endgame) {
+                    location.reload();
+                }
+            }))
 };
