@@ -41,8 +41,7 @@ let hideLoadingScreen = function (engine) {
 };
 
 function initEngine(canvas) {
-    delete engine;
-    engine = new BABYLON.Engine(canvas, true, {
+    const engine = new BABYLON.Engine(canvas, true, {
         deterministicLockstep: true,
         lockstepMaxSteps: 4
     });
@@ -104,11 +103,7 @@ function createLight(scene) {
     secondLight.intensity = 0.6;
     const thirdLight = new BABYLON.DirectionalLight("directlight3", new BABYLON.Vector3(0.5, 0.5, 0.5), scene);
     thirdLight.intensity = 0.3;
-    const hemisphericLight = new BABYLON.HemisphericLight(
-        "hemisphericLight",
-        new BABYLON.Vector3(-0.3, 1, 0),
-        scene
-    );
+    const hemisphericLight = new BABYLON.HemisphericLight("hemisphericLight", new BABYLON.Vector3(-0.3, 1, 0), scene);
     hemisphericLight.intensity = 0.5;
     return light;
 }
