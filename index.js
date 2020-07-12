@@ -65,19 +65,18 @@ function createScene(engine) {
     scene.enablePhysics(new BABYLON.Vector3(0, -9.81, 0), physEngine);
     physEngine.setTimeStep(1 / 60);
     scene.collisionsEnabled = true;
-    scene.debugLayer.show();
+    //scene.debugLayer.show();
     return scene;
 }
 
 function createUniversalCamera(scene) {
     const camera = new BABYLON.UniversalCamera("cam", new BABYLON.Vector3(0, 1.5, -8), scene);
     camera.speed = 0.8;
-    camera.inertia = 0.4;
     camera.checkCollisions = true;
     return camera;
 }
 
-function createFollowCam(scene, canvas) {
+function createFollowCam(scene) {
     const followCam = new BABYLON.FollowCamera("FollowCam", new BABYLON.Vector3(0, 3, -5), scene);
     followCam.radius = 1;
     followCam.cameraAcceleration = 0;
