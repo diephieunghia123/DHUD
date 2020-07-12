@@ -99,9 +99,9 @@ function createGround(scene) {
 function createLight(scene) {
     const light = new BABYLON.DirectionalLight("directlight1", new BABYLON.Vector3(0, -1, 0), scene);
     light.intensity = 1.4;
-    const secondLight = new BABYLON.DirectionalLight("directlight2", new BABYLON.Vector3(-0.5, -0.5, 0.5), scene);
+    const secondLight = new BABYLON.DirectionalLight("directlight2", new BABYLON.Vector3(-1, -1, 1), scene);
     secondLight.intensity = 0.6;
-    const thirdLight = new BABYLON.DirectionalLight("directlight3", new BABYLON.Vector3(0.5, 0.5, 0.5), scene);
+    const thirdLight = new BABYLON.DirectionalLight("directlight3", new BABYLON.Vector3(1, 1, 1), scene);
     thirdLight.intensity = 0.3;
     const hemisphericLight = new BABYLON.HemisphericLight("hemisphericLight", new BABYLON.Vector3(-0.3, 1, 0), scene);
     hemisphericLight.intensity = 0.5;
